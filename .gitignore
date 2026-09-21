@@ -9,6 +9,7 @@ data/*
 !data/register_schema.yml
 !data/*.xlsm
 !data/*.xlsx
+!data/candidate_shortlist.csv
 
 # Large spatial outputs
 *.gpkg
