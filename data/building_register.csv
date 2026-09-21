@@ -1,13 +1,17 @@
-building_id,building_name,category,role,selected,has_existing_pv,storeys,height_m,height_source,footprint_source,gross_roof_area_m2,obstruction_area_m2,roof_perimeter_m,digitised_by,digitised_date,notes
-B01,,academic,candidate,no,no,,,,,,,,,,fill in week 1 after the campus walk
-B02,,academic,candidate,no,no,,,,,,,,,,
-B03,,laboratory,candidate,no,no,,,,,,,,,,
-B04,,laboratory,candidate,no,no,,,,,,,,,,
-B05,,hostel,candidate,no,no,,,,,,,,,,
-B06,,hostel,candidate,no,no,,,,,,,,,,
-B07,,hostel,candidate,no,no,,,,,,,,,,
-B08,,service,candidate,no,no,,,,,,,,,,low-rise service building per scope
-B09,,academic,candidate,no,no,,,,,,,,,,"optional tenth building"
-B10,,laboratory,candidate,no,no,,,,,,,,,,"optional tenth building"
-V01,,existing_pv,validation,no,yes,,,,,,,,,,retained for FR-4 back-test only
-V02,,existing_pv,validation,no,yes,,,,,,,,,,retained for FR-4 back-test only
+building_id,building_name,category,role,selected,has_existing_pv,osm_id,lat,lon,storeys,height_m,height_source,footprint_source,gross_roof_area_m2,obstruction_area_m2,roof_perimeter_m,digitised_by,digitised_date,notes
+B01,Block 3,academic,candidate,yes,no,44408522,28.546074,77.192108,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,"matched pair: Blocks 1,2,5,6 carry PV, 3 and 4 do not; identical design and era"
+B02,Block 4,academic,candidate,yes,no,44408521,28.546374,77.191589,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,matched pair with the solar-carrying blocks
+B03,Dronagiri House,hostel,candidate,yes,no,1527964005,28.546791,77.187854,7,24.5,site_count x 3.5 m (provisional),osm,,,,,,one of only 3 hostels without PV against 13 with it
+B04,Saptagiri House,hostel,candidate,yes,no,1527964006,28.547193,77.187161,7,24.5,site_count x 3.5 m (provisional),osm,,,,,,one of only 3 hostels without PV
+B05,Vindhyachal Hostel,hostel,candidate,yes,no,301448255,28.548495,77.186385,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,one of only 3 hostels without PV
+B06,Lecture Hall Complex,academic,candidate,yes,no,19120455,28.543076,77.193174,5,17.5,site_count x 3.5 m (provisional),osm,,,,,,large roof; daytime load coincides with generation
+B07,Academic Complex East,academic,candidate,yes,no,1088204564,28.54399,77.194624,6,21.0,site_count x 3.5 m (provisional),osm,,,,,,tallest candidate at 6 storeys; large roof
+B08,Department of Textile Technology,laboratory,candidate,yes,no,1088204568,28.544007,77.193548,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,laboratory block per scope
+B09,Department of Material Science,laboratory,candidate,yes,no,1088204567,28.544408,77.193597,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,laboratory block per scope
+B10,Central Workshop,service,candidate,yes,no,358768033,28.543513,77.192303,2,7.0,site_count x 3.5 m (provisional),osm,,,,,,the low-rise service building the scope requires
+V01,Bharti Block,existing_pv,validation,yes,yes,,,,,,,,,,,,,"28 live months, largest generator, continuous record"
+V02,Block No. 1 (KSBS),existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B01/B02; 28 live months
+V03,Block No. 5 (Near V-112),existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B01/B02
+V04,Block No. 6 (Near VI-136),existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B01/B02; 28 live months
+V05,Karakoram Boys Hostel,existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B03/B04/B05; second largest generator
+V06,Shivalik Boys Hostel,existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B03/B04/B05

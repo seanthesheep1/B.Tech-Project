@@ -1,31 +1,31 @@
 osm_id,name,building_tag,lat,lon,levels,flat_roof_YN,panels_visible_YN,storeys_counted,notes,likely_status
-1501293289,2 LT 2,university,28.545788,77.192869,,,,,,candidate - verify on foot
-352448510,2A/05,house,28.543384,77.197166,2,,,,,probably not an Institute building - verify
-272260781,4 LT 3,yes,28.546231,77.191961,,,,,,candidate - verify on foot
-272260780,5 LT 1,yes,28.546402,77.191113,,,,,,candidate - verify on foot
-362007376,6 LT 1,university,28.54661,77.190481,,,,,,candidate - verify on foot
-362007373,6 LT 2,university,28.546882,77.191245,,,,,,candidate - verify on foot
-1088204564,Academic Complex East,university,28.54399,77.194624,,,,,,candidate - verify on foot
-1088204565,Academic Complex West,university,28.542828,77.191473,,,,,,candidate - verify on foot
-358757485,Admin Building,university,28.544864,77.192358,,,,,,candidate - verify on foot
-272259456,Block 1,university,28.545834,77.19362,4,,,,,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
-44408523,Block 2,yes,28.545469,77.191504,3,,,,,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
-44408524,Block 2,yes,28.546011,77.19314,3,,,,,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
-44408522,Block 3,yes,28.546074,77.192108,3,,,,,PRIORITY - listed in Jan-2024 sheet with no meter and no readings
-44408521,Block 4,yes,28.546374,77.191589,3,,,,,PRIORITY - listed in Jan-2024 sheet with no meter and no readings
-44408520,Block 5,yes,28.546685,77.191225,3,,,,,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
-272260779,Block 6,yes,28.546971,77.190841,3,,,,,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
-358768033,Central Workshop,university,28.543513,77.192303,,,,,,candidate - verify on foot
-1088204567,Department of Material Science,university,28.544408,77.193597,2,,,,,candidate - verify on foot
-1088204568,Department of Textile Technology,university,28.544007,77.193548,1,,,,,candidate - verify on foot
-1097568674,Dogra Hall,yes,28.544775,77.192085,,,,,,candidate - verify on foot
-1527964005,Dronagiri House,university,28.546791,77.187854,7,,,,,candidate - verify on foot
-510352448,"Focus inubation Center, 3D weaving and structural composites.",yes,28.543713,77.192679,,,,,,probably not an Institute building - verify
-19120455,Lecture Hall Complex,college,28.543076,77.193174,5,,,,,candidate - verify on foot
-272259458,Mathematics Department,yes,28.544814,77.192136,,,,,,candidate - verify on foot
-510352453,Pavement Laboratory (PVC),yes,28.545712,77.190299,1,,,,,candidate - verify on foot
-1088202869,"RnI Park, IIT Delhi",yes,28.543315,77.187475,,,,,,candidate - verify on foot
-1527964006,Saptagiri House,hostel,28.547193,77.187161,7,,,,,candidate - verify on foot
-351840871,Student Activity Centre,university,28.545691,77.185529,,,,,,candidate - verify on foot
-351840888,Students Activity Center,university,28.545507,77.185754,,,,,,candidate - verify on foot
-301448255,Vindhyachal Hostel,dormitory,28.548495,77.186385,,,,,,candidate - verify on foot
+1501293289,2 LT 2,university,28.545788,77.192869,,Y,N,2,survey 2026-09-22,candidate - verify on foot
+352448510,2A/05,house,28.543384,77.197166,2,N,N,2,survey 2026-09-22,probably not an Institute building - verify
+272260781,4 LT 3,yes,28.546231,77.191961,,N,N,2,survey 2026-09-22,candidate - verify on foot
+272260780,5 LT 1,yes,28.546402,77.191113,,Y,N,2,survey 2026-09-22,candidate - verify on foot
+362007376,6 LT 1,university,28.54661,77.190481,,N,N,2,survey 2026-09-22,candidate - verify on foot
+362007373,6 LT 2,university,28.546882,77.191245,,Y,N,2,survey 2026-09-22,candidate - verify on foot
+1088204564,Academic Complex East,university,28.54399,77.194624,,Y,N,6,survey 2026-09-22,candidate - verify on foot
+1088204565,Academic Complex West,university,28.542828,77.191473,,Y,N,6,survey 2026-09-22,candidate - verify on foot
+358757485,Admin Building,university,28.544864,77.192358,,Y,N,2,survey 2026-09-22,candidate - verify on foot
+272259456,Block 1,university,28.545834,77.19362,4,Y,Y,4,survey 2026-09-22,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
+44408523,Block 2,yes,28.545469,77.191504,3,Y,Y,4,survey 2026-09-22,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
+44408524,Block 2,yes,28.546011,77.19314,3,Y,Y,4,survey 2026-09-22,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
+44408522,Block 3,yes,28.546074,77.192108,3,Y,N,4,survey 2026-09-22,PRIORITY - listed in Jan-2024 sheet with no meter and no readings
+44408521,Block 4,yes,28.546374,77.191589,3,Y,N,4,survey 2026-09-22,PRIORITY - listed in Jan-2024 sheet with no meter and no readings
+44408520,Block 5,yes,28.546685,77.191225,3,Y,Y,4,survey 2026-09-22,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
+272260779,Block 6,yes,28.546971,77.190841,3,Y,Y,4,survey 2026-09-22,ALREADY HAS SOLAR (meters named 'Block No. N (...)')
+358768033,Central Workshop,university,28.543513,77.192303,,Y,N,2,survey 2026-09-22,candidate - verify on foot
+1088204567,Department of Material Science,university,28.544408,77.193597,2,Y,N,4,survey 2026-09-22,candidate - verify on foot
+1088204568,Department of Textile Technology,university,28.544007,77.193548,1,Y,N,4,survey 2026-09-22,candidate - verify on foot
+1097568674,Dogra Hall,yes,28.544775,77.192085,,Y,N,3,survey 2026-09-22,candidate - verify on foot
+1527964005,Dronagiri House,university,28.546791,77.187854,7,Y,N,7,survey 2026-09-22,candidate - verify on foot
+510352448,"Focus inubation Center, 3D weaving and structural composites.",yes,28.543713,77.192679,,Y,Y,3,survey 2026-09-22,probably not an Institute building - verify
+19120455,Lecture Hall Complex,college,28.543076,77.193174,5,Y,N,5,survey 2026-09-22,candidate - verify on foot
+272259458,Mathematics Department,yes,28.544814,77.192136,,Y,N,4,survey 2026-09-22,candidate - verify on foot
+510352453,Pavement Laboratory (PVC),yes,28.545712,77.190299,1,Y,N,4,survey 2026-09-22,candidate - verify on foot
+1088202869,"RnI Park, IIT Delhi",yes,28.543315,77.187475,,Y,N,5,survey 2026-09-22,candidate - verify on foot
+1527964006,Saptagiri House,hostel,28.547193,77.187161,7,Y,N,7,survey 2026-09-22,candidate - verify on foot
+351840871,Student Activity Centre,university,28.545691,77.185529,,Y,N,2,survey 2026-09-22,candidate - verify on foot
+351840888,Students Activity Center,university,28.545507,77.185754,,Y,N,2,survey 2026-09-22,candidate - verify on foot
+301448255,Vindhyachal Hostel,dormitory,28.548495,77.186385,,Y,N,4,survey 2026-09-22,candidate - verify on foot

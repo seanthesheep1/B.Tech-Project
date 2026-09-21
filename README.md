@@ -1,7 +1,8 @@
 # Rooftop Solar Potential Mapping of the IIT Delhi Campus
 
 B.Tech project, Department of Electrical Engineering, IIT Delhi.
-Tejas Suresh Kamble (2023EE10974), supervised by Prof. Yashasvi.
+Tejas Suresh Kamble (2023EE10974) and Surbhi Rathore (2023EE11224),
+supervised by Prof. Yashasvi Bansal.
 Review period 18 August to 31 October 2026.
 
 The specification this code implements is in

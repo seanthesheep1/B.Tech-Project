@@ -116,3 +116,61 @@ comparable with 2024's 955 MWh.
 Capacity in kWp is **not** in this data, so specific yield — the FR-4
 acceptance criterion — cannot yet be computed for any plant. That single
 missing item is the highest-priority data request.
+
+---
+
+## 2026-09-22 — Part 1 closed: building list locked
+
+Project team recorded as Tejas Suresh Kamble (2023EE10974) and Surbhi Rathore
+(2023EE11224), supervised by Prof. Yashasvi Bansal. The specification PDF still
+carries placeholders for both; the register and README are now authoritative.
+
+### How the candidates were found
+
+The candidate pool was **derived rather than requested**, which removes
+`buildings_without_solar.xlsx` from the data request entirely. Campus building
+footprints were pulled from OpenStreetMap (1,257 polygons in the campus box,
+102 named), cross-referenced against the 29 locations the meter data shows
+already carry PV, and the remainder surveyed on foot on 22 September 2026.
+
+Of 30 shortlisted buildings: 3 were ruled out for sloped roofs (`4 LT 3`,
+`6 LT 1`, `2A/05`), 6 were found to already carry panels (Blocks 1, 2, 5, 6 and
+the Focus Incubation Centre), leaving **21 viable candidates**. Ten were
+selected.
+
+### Selection principle: matched pairs
+
+The ten were not chosen for roof size alone. Seven of them sit in two groups
+where a near-identical building already carries PV and is in our validation
+set:
+
+- **Blocks 3 and 4** against Blocks 1, 2, 5 and 6 — same design, same era, same
+  orientation, four of six already instrumented.
+- **Dronagiri, Saptagiri and Vindhyachal** against the thirteen hostels that
+  already carry PV, of which Karakoram and Shivalik are in the validation set.
+
+This turns the back-test from a generic plausibility check into a like-for-like
+prediction, which is a materially stronger claim than the specification
+originally anticipated.
+
+Reserve list, in order: Academic Complex West, Admin Building, Mathematics
+Department, RnI Park, Dogra Hall.
+
+### Validation set widened from two to six
+
+The specification reserves **two** existing installations. The meter data
+revealed 29 locations with PV, about 20 generating, so six are now carried as
+primary validation (V01–V06) chosen for record length and for pairing with the
+candidates. The remaining live plants stay available as a secondary set.
+`tests/test_register.py` was updated accordingly.
+
+### Provisional values to revisit
+
+Building heights are recorded as **storey count x 3.5 m** and flagged
+`provisional` in `height_source`. Confirm the floor height during the Part 4
+site visits; a wrong floor height propagates straight into the FR-3 shading
+model.
+
+`Student Activity Centre` and `Students Activity Center` are two OSM polygons
+120 m apart. Neither was selected, but if either is promoted from the reserve
+list, establish first whether they are one building or two.

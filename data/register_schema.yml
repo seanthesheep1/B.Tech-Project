@@ -11,6 +11,9 @@ identity:
   role:             {unit: "-",  module: manual, source: "candidate | validation"}
   selected:         {unit: "-",  module: manual, source: "yes once the supervisor confirms the list (M1)"}
   has_existing_pv:  {unit: "-",  module: FR-2,   source: "visual check plus the existing-panel classifier"}
+  osm_id:           {unit: "-",  module: FR-1,   source: "OpenStreetMap way/relation id, for joining to the footprint layer"}
+  lat:              {unit: deg,  module: FR-1,   source: "OSM polygon centroid, WGS 84"}
+  lon:              {unit: deg,  module: FR-1,   source: "OSM polygon centroid, WGS 84"}
   notes:            {unit: "-",  module: manual, source: "free text; anything that would otherwise be lost in a chat message"}
 
 geometry:

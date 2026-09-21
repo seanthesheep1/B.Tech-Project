@@ -28,12 +28,39 @@ def test_every_column_is_described_in_the_schema():
     assert not undocumented, f"undocumented columns: {sorted(undocumented)}"
 
 
-def test_two_validation_buildings_are_reserved():
-    """The specification keeps two existing-PV buildings for FR-4 back-testing."""
+def test_validation_buildings_are_reserved():
+    """Existing-PV buildings held back for the FR-4 back-test.
+
+    The specification says two. The meter data revealed 29 locations already
+    carrying PV, about 20 of them live, so the validation set was widened with
+    the supervisor's agreement - see docs/decisions.md, 2026-09-22.
+    """
     rows = register.load()
     validation = [r for r in rows if r["role"] == "validation"]
-    assert len(validation) == 2
+    assert len(validation) >= 2
     assert all(r["has_existing_pv"] == "yes" for r in validation)
+    assert all(r["category"] == "existing_pv" for r in validation)
+
+
+def test_candidates_have_no_existing_pv():
+    """A candidate with panels already on it is a selection error."""
+    candidates = [r for r in register.load() if r["role"] == "candidate"]
+    assert all(r["has_existing_pv"] == "no" for r in candidates)
+
+
+def test_candidates_span_the_required_categories():
+    """Scope: academic blocks, laboratory blocks, hostels and a service building."""
+    cats = {r["category"] for r in register.load() if r["role"] == "candidate"}
+    assert {"academic", "laboratory", "hostel", "service"} <= cats
+
+
+def test_every_candidate_carries_a_footprint_and_height():
+    for r in register.load():
+        if r["role"] != "candidate":
+            continue
+        assert r["osm_id"].strip(), f"{r['building_id']} has no footprint id"
+        assert float(r["height_m"]) > 0, f"{r['building_id']} has no height"
+        assert r["height_source"].strip(), f"{r['building_id']} height has no source"
 
 
 def test_candidate_count_is_within_scope():
