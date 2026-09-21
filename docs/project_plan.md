@@ -32,6 +32,8 @@ must come from the Estate Office or the supervisor · **MAKE** we produce it.
 | D09 | `footprints_google_open_buildings.csv` | GET | Google Open Buildings footprints with height estimates. |
 | D10 | `campus_imagery/` | GET | Sub-metre satellite tiles. **Record the acquisition date of every scene** — D31 validation depends on a dated image. |
 | D11 | `inria_aerial_dataset/` | GET | INRIA aerial image labelling dataset, training data for the segmentation model. |
+| D36 | `mnre_benchmark_cost.pdf` | GET | MNRE / CERC benchmark capital cost for rooftop solar in Rs per Wp. Needed for payback and levelised cost. |
+| D37 | `cea_emission_factor.pdf` | GET | CEA grid emission factor, tCO2 per MWh, for the avoided-emissions figure. |
 
 ### Files we must ask for
 
@@ -41,6 +43,7 @@ must come from the Estate Office or the supervisor · **MAKE** we produce it.
 | D13 | `buildings_without_solar.xlsx` | ASK | 2 | List of campus buildings with no rooftop PV, to pick candidates from. |
 | D14 | `meter_factor_confirmation` | ASK | 2 | Written confirmation that register reading × MF = kWh, and that the MF row applies to the Jan–Jun 2024 sheets too. |
 | D15 | `hostel_meter_readings_2025` | ASK | 2 | The missing year. D02's 2025 sheets carry 17 columns, not 31 — all 13 hostel meters absent. |
+| D38 | `campus_electricity_tariff` | ASK | 2 | The rate the Institute pays per kWh. Without it there is no payback and no levelised cost, both of which the specification lists as deliverables. |
 | D16 | `electricity_bills_2024_2025.xlsx` | ASK | 3 | Monthly consumption per building, two years. We currently hold **zero** consumption data. |
 | D17 | `campus_single_line_diagram.pdf` | ASK | 3 | Campus SLD, PDF or DWG. |
 | D18 | `transformer_schedule.xlsx` | ASK | 3 | Rating in kVA, location, and which buildings each transformer / 11 kV feeder supplies. |
@@ -67,7 +70,7 @@ must come from the Estate Office or the supervisor · **MAKE** we produce it.
 | D34 | `feeder_results.csv` | MAKE | Voltage rise, reverse power flow, losses, hosting capacity. |
 | D35 | `campus_heatmap.png` | MAKE | Campus map coloured by annual specific yield. |
 
-**Totals: 5 held · 6 fetchable · 16 to request · 8 to produce.**
+**Totals: 5 held · 8 fetchable · 17 to request · 8 to produce.**
 
 ---
 
@@ -204,7 +207,8 @@ map distances, and declare every assumption.
 MWp and MWh, hosting capacity, payback and levelised cost, avoided emissions.
 Clean code that regenerates every figure from the raw data.
 
-**Uses:** everything
+**Uses:** everything, plus D38 (tariff), D36 (capital cost) and D37 (emission
+factor) — the three inputs the economics cannot be written without.
 **Produces:** the interim report
 
 ---
