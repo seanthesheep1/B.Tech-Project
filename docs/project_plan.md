@@ -40,13 +40,13 @@ must come from the Estate Office or the supervisor · **MAKE** we produce it.
 | ID | File name | Status | Priority | What it is |
 |----|-----------|--------|----------|------------|
 | D12 | `existing_pv_plant_schedule.xlsx` | ASK | **1 — blocking** | Per plant: meter no., building, **installed kWp**, module type and count, inverter, tilt, azimuth, commissioning date. |
-| D13 | `buildings_without_solar.xlsx` | ASK | 2 | List of campus buildings with no rooftop PV, to pick candidates from. |
+| D13 | `buildings_without_solar.xlsx` | ~~ASK~~ DERIVE | — | **We can produce this ourselves.** D03 names the 29 roofs that do have PV; imagery plus footprints gives the rest. No longer a request. |
 | D14 | `meter_factor_confirmation` | ASK | 2 | Written confirmation that register reading × MF = kWh, and that the MF row applies to the Jan–Jun 2024 sheets too. |
 | D15 | `hostel_meter_readings_2025` | ASK | 2 | The missing year. D02's 2025 sheets carry 17 columns, not 31 — all 13 hostel meters absent. |
-| D38 | `campus_electricity_tariff` | ASK | 2 | The rate the Institute pays per kWh. Without it there is no payback and no levelised cost, both of which the specification lists as deliverables. |
-| D16 | `electricity_bills_2024_2025.xlsx` | ASK | 3 | Monthly consumption per building, two years. We currently hold **zero** consumption data. |
-| D17 | `campus_single_line_diagram.pdf` | ASK | 3 | Campus SLD, PDF or DWG. |
-| D18 | `transformer_schedule.xlsx` | ASK | 3 | Rating in kVA, location, and which buildings each transformer / 11 kV feeder supplies. |
+| D38 | `campus_electricity_tariff` | ASK / GET | 3 | The rate the Institute pays per kWh. The DERC tariff order is public, so an indicative figure is fetchable; only the contracted rate needs asking. |
+| **D16** | **`electricity_bills_2024_2025.xlsx`** | **ASK** | **1 — TRUE BLOCKER** | Monthly consumption per building. **Cannot be derived, fetched or estimated.** FR-5's acceptance criterion is calibration against billed consumption; without it that test cannot be run at all. |
+| **D17** | **`campus_single_line_diagram.pdf`** | **ASK** | **1 — TRUE BLOCKER** | Network topology. **Cannot be derived.** Which buildings sit on which feeder is not visible from imagery or inferable from generation data. |
+| **D18** | **`transformer_schedule.xlsx`** | **ASK** | **1 — TRUE BLOCKER** | Ratings and which buildings each transformer supplies. **Cannot be derived.** |
 | D19 | `feeder_layout.pdf` | ASK | 3 | 11 kV feeder routing. |
 | D20 | `plant_outage_log` | ASK | 3 | Why six plants stopped: Central Library, Amaltas Guest House, Main Building, Vishwakarma ×2, SIT. |
 | D21 | `meter_replacement_log.xlsx` | ASK | 4 | Explains register resets and the 29490555 → 42490555 relabelling. |
@@ -71,6 +71,48 @@ must come from the Estate Office or the supervisor · **MAKE** we produce it.
 | D35 | `campus_heatmap.png` | MAKE | Campus map coloured by annual specific yield. |
 
 **Totals: 5 held · 8 fetchable · 17 to request · 8 to produce.**
+
+---
+
+## 1b. Capacity and validation — how we proceed without nameplate kWp
+
+Installed capacity is **not** in the supervisor's workbooks. All 28 sheets,
+every cell, the raw XML, cell comments and hidden sheets were searched; the
+only non-reading content is the `MF` row, a plant index row, and monthly
+`TOTAL` rows. The supervisor has agreed we may work from estimates.
+
+**Estimate used.** Capacity is back-calculated per plant from monthly energy:
+
+    kWp = monthly kWh / (days x peak sun hours x performance ratio)
+
+taken as the median across all live months. Fleet total is about **765 kWp**
+(interquartile range 575 to 938). Per-plant quartile spreads are tight, which
+indicates the method is stable across seasons.
+
+**The circularity trap, and how we avoid it.** Capacity derived this way must
+never be used for the FR-4 back-test. Specific yield would become
+`kWh / (kWh / (PSH x days x PR))`, which collapses to the assumed constant for
+every plant. The acceptance test would pass by construction and prove nothing.
+
+The back-test is therefore restructured into two checks that are genuinely
+independent of the generation data:
+
+1. **Shape validation.** Normalise modelled and measured generation to their
+   own annual totals and compare the monthly profile — December trough, April
+   peak, July monsoon dip. This tests the irradiance, shading and temperature
+   modelling without capacity appearing anywhere.
+2. **Independent capacity from imagery.** Count module rows on the existing
+   arrays in the satellite imagery we are already digitising in Part 4, and
+   derive capacity from array area. Compare against the energy-derived figure.
+   Agreement between two independent routes is real evidence; disagreement is
+   itself a reportable finding.
+
+Where a capacity figure is quoted in the report it is labelled an estimate with
+its method, per the standing rule that every number is traceable.
+
+Note that capacity for the **candidate** roofs is unaffected by any of this: it
+comes from roof area, ground coverage ratio and module power density in Part 4,
+and never touches the meter data.
 
 ---
 
@@ -223,9 +265,16 @@ factor) — the three inputs the economics cannot be written without.
 | 4 | **yes** (after Part 1's list) | — |
 | 5 | yes | Part 4 ground truth |
 | 6 | yes | Part 4 |
-| 7 | partly | **D12** for validation |
-| 8 | no | D16, D17, D18 |
+| 7 | **yes** | capacity estimated; validation restructured, see 1b |
+| 8 | no | **D16, D17, D18 — the only true blockers in the project** |
 | 9 | no | everything above |
 
-**Three parts can start today and need nothing from anybody: 1, 3 and 4.**
-The one request that unblocks the most downstream work is **D12**.
+**Every part except 8 can now proceed without the Estate Office.**
+
+Of the seventeen files originally on the request list, only three cannot be
+derived, fetched or estimated: **D16** (consumption bills), **D17** (single
+line diagram) and **D18** (transformer schedule). All three are needed by
+Part 8 alone. If they never arrive, the specification's own mitigation applies:
+build a representative feeder from ratings and map distances and declare every
+assumption — but the FR-5 calibration criterion cannot then be tested, and the
+report must say so plainly.
