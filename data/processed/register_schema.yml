@@ -1,0 +1,49 @@
+# Data dictionary for building_register.csv.
+#
+# Rule: every number that reaches the report is a column here, and every column
+# names the module that produced it and the formula or source behind it. A
+# column with no entry in this file is not allowed in the register.
+
+identity:
+  building_id:      {unit: "-",  module: manual, source: "assigned in week 1; B## candidate, V## validation"}
+  building_name:    {unit: "-",  module: manual, source: "campus walk, week 1"}
+  category:         {unit: "-",  module: manual, source: "academic | laboratory | hostel | service | existing_pv"}
+  role:             {unit: "-",  module: manual, source: "candidate | validation"}
+  selected:         {unit: "-",  module: manual, source: "yes once the supervisor confirms the list (M1)"}
+  has_existing_pv:  {unit: "-",  module: FR-2,   source: "visual check plus the existing-panel classifier"}
+  notes:            {unit: "-",  module: manual, source: "free text; anything that would otherwise be lost in a chat message"}
+
+geometry:
+  storeys:              {unit: count, module: manual, source: "counted on site, week 3"}
+  height_m:             {unit: m,     module: FR-1, source: "storeys x floor height, or Open Buildings height; record which"}
+  height_source:        {unit: "-",   module: FR-1, source: "osm | open_buildings | site_count"}
+  footprint_source:     {unit: "-",   module: FR-1, source: "osm | open_buildings | manual_correction"}
+  gross_roof_area_m2:   {unit: m2,    module: FR-2, source: "QGIS polygon area in EPSG:32643, digitised week 3"}
+  obstruction_area_m2:  {unit: m2,    module: FR-2, source: "sum of digitised obstruction polygons: tanks, stair rooms, AC plant, lift rooms, solar water heaters"}
+  roof_perimeter_m:     {unit: m,     module: FR-2, source: "QGIS polygon perimeter"}
+  digitised_by:         {unit: "-",   module: manual, source: "initials, so a disputed polygon has an owner"}
+  digitised_date:       {unit: date,  module: manual, source: "ISO date"}
+
+usable_area:  # written by scripts/run_fr2_usable_area.py
+  setback_area_m2:          {unit: m2, module: FR-2, source: "QGIS negative buffer at SETBACK_M, or the analytic estimate P*s - pi*s^2"}
+  net_available_area_m2:    {unit: m2, module: FR-2, source: "gross - obstructions - setback"}
+  ground_coverage_ratio:    {unit: "-", module: FR-2, source: "1 / (cos B + sin B cos G / tan A) at the winter design sun position"}
+  packing_factor:           {unit: "-", module: FR-2, source: "config.PACKING_FACTOR, walkways and inverter pads"}
+  module_area_m2:           {unit: m2, module: FR-2, source: "net x GCR x packing factor"}
+  installable_capacity_kwp: {unit: kWp, module: FR-2, source: "module area x MODULE_POWER_DENSITY_W_PER_M2 / 1000"}
+  usable_fraction_of_roof:  {unit: "-", module: FR-2, source: "module area / gross roof area; the sanity check on the whole chain"}
+
+shading:  # FR-3, week 6
+  annual_shading_loss:      {unit: "-", module: FR-3, source: "1 - shaded POA / unshaded POA over the year, from UMEP"}
+  worst_month_shading_loss: {unit: "-", module: FR-3, source: "December, the binding month"}
+
+generation:  # FR-4, week 7
+  annual_energy_kwh:        {unit: kWh, module: FR-4, source: "pvlib model chain output after the loss stack"}
+  specific_yield:           {unit: kWh/kWp/yr, module: FR-4, source: "annual energy / installable capacity; must land in 1300-1600"}
+  capacity_factor:          {unit: "-", module: FR-4, source: "specific yield / 8766"}
+  total_loss_fraction:      {unit: "-", module: FR-4, source: "multiplicative combination of config.LOSSES"}
+
+grid:  # FR-5, weeks 9-10
+  feeder_id:                {unit: "-", module: FR-5, source: "which 11 kV feeder supplies the building"}
+  annual_consumption_kwh:   {unit: kWh, module: FR-5, source: "Estate Office bills, or the declared synthetic profile"}
+  load_profile_source:      {unit: "-", module: FR-5, source: "metered | billed_monthly | synthetic (must be stated in the report)"}

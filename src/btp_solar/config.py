@@ -1,0 +1,67 @@
+"""Project-wide constants and paths.
+
+Every number here is a design decision that must be justified in the report.
+Where the specification fixes a value, the clause is cited.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+# --- paths ---------------------------------------------------------------
+ROOT = Path(__file__).resolve().parents[2]
+DATA_RAW = ROOT / "data" / "raw"
+DATA_INTERIM = ROOT / "data" / "interim"
+DATA_PROCESSED = ROOT / "data" / "processed"
+REGISTER_CSV = DATA_PROCESSED / "building_register.csv"
+REGISTER_SCHEMA = DATA_PROCESSED / "register_schema.yml"
+QGIS_DIR = ROOT / "qgis"
+REPORTS = ROOT / "reports"
+
+# --- site ----------------------------------------------------------------
+# Specification FR-1: irradiance series requested for this point.
+SITE_LAT = 28.545  # degrees north
+SITE_LON = 77.192  # degrees east
+SITE_ELEVATION_M = 216.0
+SITE_TZ = "Asia/Kolkata"
+
+# Projected CRS for all area and length computation. WGS 84 / UTM zone 43N.
+# Areas must never be computed in EPSG:4326.
+CRS_WORKING = "EPSG:32643"
+CRS_GEOGRAPHIC = "EPSG:4326"
+
+# --- array design assumptions -------------------------------------------
+# These drive FR-2 usable area. Each is an assumption to defend, not a default
+# to accept silently; record any change in docs/decisions.md.
+SETBACK_M = 1.0              # fire/maintenance clearance from every roof edge
+MODULE_TILT_DEG = 15.0       # flat-roof ballasted racking, south facing
+MODULE_AZIMUTH_DEG = 180.0   # true south
+PACKING_FACTOR = 0.85        # walkways, inverter pads, cable trays within the array field
+MODULE_POWER_DENSITY_W_PER_M2 = 215.0  # ~22% efficient module, glass area basis
+
+# No-shading design criterion for inter-row spacing (FR-2).
+# "winter_noon"  : no row-to-row shading at solar noon on the winter solstice
+# "winter_9_to_3": no row-to-row shading between 09:00 and 15:00 solar time on
+#                  the winter solstice. This is the stricter, industry-standard
+#                  criterion and is the project default.
+SHADING_CRITERION = "winter_9_to_3"
+
+# --- loss stack (FR-4) ---------------------------------------------------
+# Itemised rather than a single lumped figure, as the specification requires.
+LOSSES = {
+    "soiling": 0.030,       # Delhi dust; seasonal, to be refined from literature
+    "mismatch": 0.020,
+    "wiring_dc": 0.015,
+    "wiring_ac": 0.010,
+    "inverter_clipping": 0.005,
+    "availability": 0.020,
+    "light_induced_degradation": 0.015,
+}
+
+# --- acceptance thresholds (from the specification) ----------------------
+IRRADIANCE_AGREEMENT_TOL = 0.05        # FR-1: PVGIS vs NASA POWER annual GHI
+SEGMENTATION_MIN_IOU = 0.75            # FR-2
+SHADOW_LENGTH_TOL = 0.15               # FR-3
+SPECIFIC_YIELD_RANGE = (1300.0, 1600.0)  # FR-4, kWh/kWp/yr
+PVGIS_AGREEMENT_TOL = 0.10             # FR-4
+FEEDER_LOADING_TOL = 0.15              # FR-5, modelled vs billed

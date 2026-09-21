@@ -1,0 +1,13 @@
+building_id,building_name,category,role,selected,has_existing_pv,storeys,height_m,height_source,footprint_source,gross_roof_area_m2,obstruction_area_m2,roof_perimeter_m,digitised_by,digitised_date,notes
+B01,,academic,candidate,no,no,,,,,,,,,,fill in week 1 after the campus walk
+B02,,academic,candidate,no,no,,,,,,,,,,
+B03,,laboratory,candidate,no,no,,,,,,,,,,
+B04,,laboratory,candidate,no,no,,,,,,,,,,
+B05,,hostel,candidate,no,no,,,,,,,,,,
+B06,,hostel,candidate,no,no,,,,,,,,,,
+B07,,hostel,candidate,no,no,,,,,,,,,,
+B08,,service,candidate,no,no,,,,,,,,,,low-rise service building per scope
+B09,,academic,candidate,no,no,,,,,,,,,,"optional tenth building"
+B10,,laboratory,candidate,no,no,,,,,,,,,,"optional tenth building"
+V01,,existing_pv,validation,no,yes,,,,,,,,,,retained for FR-4 back-test only
+V02,,existing_pv,validation,no,yes,,,,,,,,,,retained for FR-4 back-test only

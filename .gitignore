@@ -1,0 +1,42 @@
+# Data: raw and interim products are reproducible or too large for git.
+# The building register in data/processed IS tracked - it is the audit trail.
+data/raw/**
+data/interim/**
+!data/**/.gitkeep
+!data/**/README.md
+
+# Large spatial outputs
+*.gpkg
+*.tif
+*.tiff
+*.laz
+*.las
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+
+# QGIS
+*.qgz~
+*.qgs~
+.qgis2/
+qgis/*.gpkg-shm
+qgis/*.gpkg-wal
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.ruff_cache/
+
+# OpenDSS run output
+*.dss_out
+scripts/opendss_out/
+
+# macOS
+.DS_Store

@@ -1,0 +1,51 @@
+[project]
+name = "btp-solar"
+version = "0.1.0"
+description = "Rooftop solar potential mapping of the IIT Delhi campus (B.Tech project, FR-1..FR-5)"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    # FR-1 data acquisition
+    "geopandas>=1.0",
+    "shapely>=2.0",
+    "pyproj>=3.6",
+    "requests>=2.32",
+    "pandas>=2.2",
+    "numpy>=1.26",
+    # FR-3 / FR-4 solar geometry and yield
+    "pvlib>=0.11",
+    # FR-5 distribution feeder
+    "OpenDSSDirect.py>=0.9",
+    # reporting
+    "matplotlib>=3.9",
+    "pyyaml>=6.0",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+ml = [
+    # FR-2 rooftop segmentation (INRIA aerial dataset)
+    "torch>=2.4",
+    "torchvision>=0.19",
+    "rasterio>=1.3",
+    "scikit-learn>=1.5",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "jupyterlab>=4.2",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/btp_solar"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests", "scripts"]
