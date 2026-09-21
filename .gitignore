@@ -1,10 +1,14 @@
-# Every data file lives in data/. The building register and its schema are the
-# audit trail and are tracked; everything else there is either reproducible
-# from a download or is Institute data that we do not redistribute.
+# Every data file lives in data/. Tracked: the building register and its
+# schema (the audit trail), and the Estate Office meter workbooks, which are
+# committed so the raw data survives a lost laptop. THIS REPOSITORY MUST STAY
+# PRIVATE - those workbooks are the Institute's data, not ours to publish.
+# Everything else in data/ is reproducible from a download and stays out.
 data/*
 !data/README.md
 !data/building_register.csv
 !data/register_schema.yml
+!data/*.xlsm
+!data/*.xlsx
 
 # Large spatial outputs
 *.gpkg
