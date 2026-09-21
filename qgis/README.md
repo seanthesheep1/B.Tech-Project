@@ -20,4 +20,4 @@ in EPSG:4326 gives answers in degrees and is the single most common way to get
 a rooftop area wrong by a factor of ten thousand.
 
 `roofs` and `obstructions` carry a `building_id` matching the register, so the
-areas can be joined straight back to `data/processed/building_register.csv`.
+areas can be joined straight back to `data/building_register.csv`.

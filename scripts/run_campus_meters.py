@@ -2,7 +2,7 @@
 
     uv run python scripts/run_campus_meters.py
 
-Writes data/interim/campus_solar_monthly.csv and prints a fleet summary
+Writes data/campus_solar_monthly.csv and prints a fleet summary
 including which plants have stopped generating.
 """
 
@@ -15,13 +15,13 @@ sys.path.insert(0, "src")
 
 from btp_solar import campus_meters, config  # noqa: E402
 
-WORKBOOKS = sorted((config.DATA_RAW / "estate_office").glob("Solar*"))
-OUT = config.DATA_INTERIM / "campus_solar_monthly.csv"
+WORKBOOKS = sorted(config.DATA.glob(config.METER_WORKBOOK_GLOB))
+OUT = config.CAMPUS_METERS_CSV
 
 
 def main() -> int:
     if not WORKBOOKS:
-        print("No meter workbooks found in data/raw/estate_office/")
+        print(f"No meter workbooks matching {config.METER_WORKBOOK_GLOB!r} in data/")
         return 1
 
     plants = campus_meters.load(WORKBOOKS)

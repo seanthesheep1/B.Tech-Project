@@ -71,9 +71,9 @@ previous one passed through. The default stack sums to 11.5% but combines to
 
 Two workbooks covering Jan 2024 to Apr 2026: daily cumulative register
 readings for the rooftop PV already installed on campus. 17,006 readings,
-31 plants, 28 monthly sheets. Copied to `data/raw/estate_office/`, parsed by
+31 plants, 28 monthly sheets. Copied to `data/`, parsed by
 `src/btp_solar/campus_meters.py`, monthly series written to
-`data/interim/campus_solar_monthly.csv`.
+`data/campus_solar_monthly.csv`.
 
 These are **generation** meters, not consumption meters. They do not answer
 the load-profile question for FR-5; that data is still outstanding.

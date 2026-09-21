@@ -24,9 +24,8 @@ needed from week 6.
 ## Layout
 
 ```
-data/raw/          downloaded inputs, never edited, never committed
-data/interim/      intermediate products, reproducible from raw
-data/processed/    building_register.csv  <- the audit trail, committed
+data/              every data file: downloaded inputs, the Estate Office
+                   workbooks, and the products this code writes
 docs/              specification, workflow, and the decision log
 qgis/              campus.qgz and layer styles
 src/btp_solar/     one module per functional requirement
@@ -50,7 +49,7 @@ module is signed off by running a check rather than by asserting in prose.
 
 ## The two standing rules
 
-**One register.** `data/processed/building_register.csv` has one row per
+**One register.** `data/building_register.csv` has one row per
 building and one column per computed number. Every column is described in
 `register_schema.yml` with the module that produced it and the formula behind
 it; a test fails if a column appears without one. It is CSV rather than a

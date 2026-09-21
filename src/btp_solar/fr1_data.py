@@ -4,7 +4,7 @@ Week 2 of the workflow. Assembles footprints, heights and two independent
 hourly irradiance series for the campus point, and checks that the two sources
 agree to within 5 per cent on annual global horizontal irradiation.
 
-The fetchers below hit public endpoints; both cache to data/raw/irradiance so a
+The fetchers below hit public endpoints; both cache into data/ so a
 rerun is offline and the report is reproducible from the cached files.
 """
 
@@ -22,7 +22,7 @@ NASA_POWER_URL = "https://power.larc.nasa.gov/api/temporal/hourly/point"
 def fetch_pvgis_tmy(
     lat: float = config.SITE_LAT,
     lon: float = config.SITE_LON,
-    cache_dir: Path = config.DATA_RAW / "irradiance",
+    cache_dir: Path = config.DATA,
 ) -> Path:
     """Download the PVGIS typical meteorological year for the site.
 
@@ -51,7 +51,7 @@ def fetch_nasa_power(
     lon: float = config.SITE_LON,
     start: str = "20140101",
     end: str = "20231231",
-    cache_dir: Path = config.DATA_RAW / "irradiance",
+    cache_dir: Path = config.DATA,
 ) -> Path:
     """Download the NASA POWER hourly series for the site as the second source."""
     import requests

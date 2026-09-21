@@ -10,11 +10,13 @@ from pathlib import Path
 
 # --- paths ---------------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[2]
-DATA_RAW = ROOT / "data" / "raw"
-DATA_INTERIM = ROOT / "data" / "interim"
-DATA_PROCESSED = ROOT / "data" / "processed"
-REGISTER_CSV = DATA_PROCESSED / "building_register.csv"
-REGISTER_SCHEMA = DATA_PROCESSED / "register_schema.yml"
+# Every data file lives in this one folder: downloaded inputs, the workbooks
+# from the Estate Office, and the products this code writes.
+DATA = ROOT / "data"
+REGISTER_CSV = DATA / "building_register.csv"
+REGISTER_SCHEMA = DATA / "register_schema.yml"
+CAMPUS_METERS_CSV = DATA / "campus_solar_monthly.csv"
+METER_WORKBOOK_GLOB = "Solar*"
 QGIS_DIR = ROOT / "qgis"
 REPORTS = ROOT / "reports"
 

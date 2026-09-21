@@ -1,9 +1,10 @@
-# Data: raw and interim products are reproducible or too large for git.
-# The building register in data/processed IS tracked - it is the audit trail.
-data/raw/**
-data/interim/**
-!data/**/.gitkeep
-!data/**/README.md
+# Every data file lives in data/. The building register and its schema are the
+# audit trail and are tracked; everything else there is either reproducible
+# from a download or is Institute data that we do not redistribute.
+data/*
+!data/README.md
+!data/building_register.csv
+!data/register_schema.yml
 
 # Large spatial outputs
 *.gpkg
