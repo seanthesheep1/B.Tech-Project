@@ -237,3 +237,66 @@ the report.
 229 m in `config.SITE_ELEVATION_M`.
 
 The TMY (D06) is still outstanding and FR-1 still cannot be evaluated.
+
+---
+
+## 2026-09-22 — FR-1 fails its acceptance criterion, for a real reason
+
+Both irradiance sources are now in hand:
+
+| Source | Period | Annual GHI |
+|---|---|---|
+| PVGIS TMY (ERA5) | 2005–2023 | **1930.0** kWh/m2/yr |
+| NASA POWER | 2014–2023 | **1744.7** kWh/m2/yr |
+
+The gap is **10.1 per cent** against the specification's 5 per cent tolerance,
+so **FR-1 does not pass as written**. Units and fill values were checked first:
+NASA POWER returns Wh/m2 per hour with no fill values in this record, and the
+PVGIS TMY has a full 8,760 rows, so the gap is not an arithmetic error.
+
+### The disagreement is seasonal, not uniform
+
+Mean daily GHI, kWh/m2/day:
+
+| | Jan | Apr | Jul | Oct |
+|---|---|---|---|---|
+| NASA POWER | 2.84 | 6.55 | 4.82 | 4.62 |
+| PVGIS | 4.19 | 7.14 | 4.69 | 5.40 |
+
+The two agree closely through the monsoon and diverge sharply in winter, where
+PVGIS is up to 47 per cent higher. That is the signature of winter fog and
+aerosol over the Indo-Gangetic Plain, which ERA5 reanalysis is known to
+represent poorly.
+
+### The campus meters arbitrate
+
+Rather than choose by assertion, the fleet's own generation was used. Monthly
+generation and monthly irradiance were each normalised to their annual total
+and compared as seasonal **shape**, so unknown plant capacity cancels and the
+test is not circular. 18 plants had a complete live 2024, totalling 792 MWh.
+
+    total absolute shape error   NASA 0.072    PVGIS 0.109
+    Jan/Apr ratio   measured 0.429   NASA 0.433   PVGIS 0.587
+
+NASA POWER reproduces the measured seasonal shape closely; on the January to
+April ratio it is almost exact while PVGIS is 37 per cent too high.
+
+The tilt effect strengthens this rather than weakening it. Measured output is
+plane-of-array on modules tilted about 15 degrees, which *raises* the winter
+share relative to GHI, and summer temperature derating raises it further. The
+true GHI winter share implied by the measurements is therefore lower still, so
+PVGIS's winter excess is larger than the table shows.
+
+### Decision
+
+**NASA POWER becomes the primary irradiance source** for FR-4. PVGIS is
+retained as the secondary source and its divergence carried as a declared
+uncertainty band. Had PVGIS been used without checking, annual yield across the
+campus would have been overstated by roughly 10 per cent.
+
+**To raise with Prof. Bansal:** FR-1's acceptance criterion assumed the two
+sources would agree. They do not, for a physical reason we can evidence. The
+criterion should be restated as "where the sources disagree, the choice is
+justified against measured generation" — which we have now done.
+
+Reproduce with `scripts/run_fr1_source_selection.py`.

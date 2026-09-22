@@ -95,6 +95,51 @@ def annual_ghi_from_nasa(path: Path) -> float:
     return sum(values) / 1000.0 / years
 
 
+def monthly_mean_daily_ghi_pvgis(path: Path) -> list[float]:
+    """Mean daily GHI in Wh/m2 for each calendar month, from a cached TMY."""
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    totals, hours = [0.0] * 12, [0] * 12
+    for row in payload["outputs"]["tmy_hourly"]:
+        m = int(row["time(UTC)"][4:6]) - 1
+        totals[m] += float(row["G(h)"])
+        hours[m] += 1
+    return [t / (h / 24) for t, h in zip(totals, hours)]
+
+
+def monthly_mean_daily_ghi_nasa(path: Path) -> list[float]:
+    """Mean daily GHI in Wh/m2 for each calendar month, from cached POWER hourly."""
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    series = payload["properties"]["parameter"]["ALLSKY_SFC_SW_DWN"]
+    totals, hours = [0.0] * 12, [0] * 12
+    for stamp, value in series.items():
+        if value is None or value < -900:
+            continue
+        m = int(stamp[4:6]) - 1
+        totals[m] += float(value)
+        hours[m] += 1
+    return [t / (h / 24) for t, h in zip(totals, hours)]
+
+
+def normalised_shape(monthly: list[float]) -> list[float]:
+    """Monthly values as fractions of their own total.
+
+    Comparing shapes rather than levels is what lets measured generation
+    arbitrate between two irradiance sources: the plants' capacity, which we do
+    not know, cancels out.
+    """
+    total = sum(monthly)
+    if total <= 0:
+        raise ValueError("cannot normalise an empty or negative series")
+    return [v / total for v in monthly]
+
+
+def shape_error(candidate: list[float], reference: list[float]) -> float:
+    """Total absolute deviation between two normalised monthly shapes."""
+    if len(candidate) != len(reference):
+        raise ValueError("series must be the same length")
+    return sum(abs(c - r) for c, r in zip(candidate, reference))
+
+
 # --- footprints ----------------------------------------------------------
 # Week 2. Both sources are downloaded and reconciled by hand in QGIS in week 3;
 # OSM is usually right in outline and wrong in detail, Google Open Buildings the

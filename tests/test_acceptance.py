@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from btp_solar import acceptance
 
 
@@ -44,3 +46,35 @@ def test_feeder_calibration():
 def test_result_renders_readably():
     text = str(acceptance.fr4_specific_yield(1450.0))
     assert text.startswith("[PASS] FR-4")
+
+
+# --- FR-1 shape comparison -------------------------------------------------
+
+from btp_solar import fr1_data  # noqa: E402
+
+
+def test_normalised_shape_sums_to_one():
+    assert sum(fr1_data.normalised_shape([1.0, 2.0, 3.0, 4.0])) == pytest.approx(1.0)
+
+
+def test_normalised_shape_is_scale_invariant():
+    """Doubling every month must not change the shape - this is what makes the
+    measured-generation arbitration independent of unknown plant capacity."""
+    a = fr1_data.normalised_shape([1.0, 2.0, 3.0])
+    b = fr1_data.normalised_shape([2.0, 4.0, 6.0])
+    assert a == pytest.approx(b)
+
+
+def test_empty_series_is_rejected():
+    with pytest.raises(ValueError, match="empty or negative"):
+        fr1_data.normalised_shape([0.0, 0.0])
+
+
+def test_shape_error_is_zero_for_identical_series():
+    s = fr1_data.normalised_shape([3.0, 1.0, 2.0])
+    assert fr1_data.shape_error(s, s) == pytest.approx(0.0)
+
+
+def test_shape_error_rejects_mismatched_lengths():
+    with pytest.raises(ValueError, match="same length"):
+        fr1_data.shape_error([0.5, 0.5], [0.3, 0.3, 0.4])
