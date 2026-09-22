@@ -25,7 +25,6 @@ data/*
 # so they stay out - see data/README.md.
 
 # Large spatial outputs
-*.gpkg
 *.tif
 *.tiff
 *.laz
@@ -35,6 +34,11 @@ data/*
 *.dbf
 *.prj
 *.cpg
+
+# The Part 4 working layers are tracked (allowlisted in the data block
+# above). Any OTHER GeoPackage is a derived product and stays out.
+data/*.gpkg-shm
+data/*.gpkg-wal
 
 # QGIS
 *.qgz~
