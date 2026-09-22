@@ -382,3 +382,31 @@ preliminary figure is recorded so the effect of the manual work can be
 measured: if hand digitising moves the total materially, that itself is a
 result worth reporting, because it quantifies the error in the open-data
 shortcut that many rooftop studies stop at.
+
+## 2026-09-22 — B06 was the wrong building; courtyards now subtracted
+
+**A bad polygon reached the preliminary total.** B06 Lecture Hall Complex is an
+OSM *relation*, but the geometry query asked for `way(id:19120455)`. Way ids
+and relation ids are separate number spaces in OSM, so the query returned a
+different building that happens to carry the same number — one in Ohio, at
+-82.46 E, 40.08 N. It came back with a plausible 7,158 m2 and was carried
+straight into the 4,335 kWp preliminary figure.
+
+Nothing about the number looked wrong. It was caught only when converting the
+candidates to UTM for QGIS, where B06 landed at a coordinate that is not on
+Earth's land surface.
+
+`tests/test_candidate_roofs.py::test_every_polygon_is_on_the_campus` now checks
+every vertex of every candidate against a campus bounding box on each run.
+
+**The correct B06 is a multipolygon with a courtyard**: an outer ring of
+8,373 m2 and an inner ring of 408 m2. The inner ring is sky, not roof, so it is
+subtracted; its edge is added to the perimeter, because the fire setback
+applies to a courtyard edge exactly as it does to the outer edge.
+
+Corrected preliminary total: **4,429.5 kWp over 41,639 m2** (was 4,334.9 kWp
+over 40,832 m2).
+
+The lesson generalises to the digitising in Part 4: several of these buildings
+are complex shapes and any of them may enclose a light well. `has_courtyard` is
+now recorded per building so the hand digitising can confirm each one.
