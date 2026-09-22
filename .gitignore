@@ -15,6 +15,11 @@ data/*
 !data/footprints_osm.json
 # PVGIS horizon profile: small, and it pins a regression test.
 !data/horizon_*.json
+# Part 4 working layers: small, hand-edited, and the roof outlines are the
+# project's primary measurement - they must be versioned.
+!data/candidate_roofs.geojson
+!data/obstructions_template.geojson
+!data/roofs.gpkg
 # NASA POWER and PVGIS for a fixed date range are deterministic re-downloads,
 # so they stay out - see data/README.md.
 

@@ -350,3 +350,35 @@ be raised with Prof. Bansal early, because unlike everything else in this
 project it has a consequence today.
 
 Reproduce with `scripts/run_outage_report.py`.
+
+---
+
+## 2026-09-22 — Part 4 started: preliminary areas from OSM outlines
+
+Polygon geometry for the ten candidates was fetched from OpenStreetMap
+(the Part 1 query returned centroids only) and projected to EPSG:32643 to give
+a first area and perimeter for each. Written to `data/candidate_roofs.geojson`
+as the starting layer for hand digitising.
+
+Running the FR-2 area chain over these outlines, with obstructions assumed at
+8 per cent until they are digitised, gives a **preliminary 4,335 kWp across
+40,832 m2 of footprint** - about 5.7 times the existing campus fleet.
+
+**This number is not yet defensible and must not be quoted.** Three reasons:
+
+1. OSM polygons are *building* outlines, not *roof* outlines. They can include
+   courtyards, overhangs and adjoining structures.
+2. The 8 per cent obstruction allowance is a placeholder. Real roofs carry
+   water tanks, stair rooms, lift rooms and air conditioning plant, and the
+   real figure will differ per building.
+3. Several polygons look wrong. **B09 Department of Material Science comes out
+   at 646 m2** from a 6-node rectangle, which is implausibly small for a
+   department block and suggests only part of it is mapped. B07 Academic
+   Complex East (43 nodes) and B05 Vindhyachal (37 nodes) are complex shapes
+   that may enclose courtyards.
+
+Correcting these against imagery is precisely what Part 4 is for. The
+preliminary figure is recorded so the effect of the manual work can be
+measured: if hand digitising moves the total materially, that itself is a
+result worth reporting, because it quantifies the error in the open-data
+shortcut that many rooftop studies stop at.
