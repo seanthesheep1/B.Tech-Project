@@ -20,6 +20,7 @@ data/*
 !data/candidate_roofs.geojson
 !data/obstructions_template.geojson
 !data/roofs.gpkg
+!data/obstructions.gpkg
 # NASA POWER and PVGIS for a fixed date range are deterministic re-downloads,
 # so they stay out - see data/README.md.
 
