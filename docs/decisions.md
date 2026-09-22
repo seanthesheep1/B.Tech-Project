@@ -410,3 +410,39 @@ over 40,832 m2).
 The lesson generalises to the digitising in Part 4: several of these buildings
 are complex shapes and any of them may enclose a light well. `has_courtyard` is
 now recorded per building so the hand digitising can confirm each one.
+
+## 2026-09-22 — Obstruction conventions settled during digitising
+
+Four decisions came out of digitising B01 and B02, all of which generalise to
+the remaining roofs.
+
+**Obstructions were assigned to the wrong building.** All six polygons drawn on
+the two parallel blocks named the neighbouring block. The labels sit near the
+gap between them, which makes it easy to pick the wrong id. Caught by testing
+each polygon's centroid against each roof outline rather than by eye, and
+corrected in bulk. Worth re-running that containment check after every
+digitising session.
+
+**An overhanging tree is not an obstruction.** It was drawn as one and has been
+deleted. A tree canopy does not occupy roof area; it shades it. Subtracting it
+here *and* modelling it in FR-3 would penalise the same square metres twice.
+Overhangs belong in Part 6.
+
+**A gap between buildings is not roof.** It was drawn as an obstruction; it is
+now an inner ring of B01's polygon, as with B06's courtyard. Both treatments
+subtract the area, but only the hole also adds the gap's edge to the perimeter,
+so the fire setback is applied around it. Left as an obstruction the setback
+there would have been missed.
+
+**Rule of thumb.** Something standing *on* the roof - tank, stair room, lift
+room, air conditioning plant - is an obstruction. Something that is *not roof
+at all* - courtyard, light well, gap between blocks - is a hole. Something that
+blocks *light* rather than occupying area is shading, and belongs to FR-3.
+
+Digitised so far: B01, B02, B08, B09 corrected; B01 and B06 carry holes; four
+obstructions recorded on B01 and B02. The remaining six roofs still sit on
+their OSM outlines with the 8 per cent obstruction placeholder.
+
+Current total **39,541 m2 and 4,202 kWp**, down from the 4,429 kWp preliminary
+figure as the hand digitising pulls the outlines off open ground and onto the
+roofs themselves.
