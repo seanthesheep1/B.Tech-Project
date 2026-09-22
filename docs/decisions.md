@@ -174,3 +174,37 @@ model.
 `Student Activity Centre` and `Students Activity Center` are two OSM polygons
 120 m apart. Neither was selected, but if either is promoted from the reserve
 list, establish first whether they are one building or two.
+
+---
+
+## 2026-09-22 — Part 3: irradiance sources, and PVGIS unreachable
+
+**NASA POWER (D07) obtained.** Hourly series for 28.545 N, 77.192 E, 2014 to
+2023, 6.4 MB. Annual global horizontal irradiation **1744.7 kWh/m2/yr**, which
+is in the expected band for Delhi.
+
+**PVGIS (D06) could not be fetched.** `re.jrc.ec.europa.eu` resolves and
+completes the TLS handshake but then closes without responding, on both the
+v5_2 and v5_3 endpoints and on the plain web page. The whole host is
+unreachable from this machine, not just the API. It must be downloaded through
+a browser instead; the fetcher in `fr1_data.py` is left in place for when the
+host is reachable again.
+
+Until it arrives, **FR-1's acceptance criterion cannot be evaluated** - the
+5 per cent agreement test needs two independent sources and we have one.
+
+**Google Open Buildings (D09) recommended for descoping.** Its value under FR-1
+was an independent footprint and height. For ten buildings we are digitising by
+hand in Part 4 the footprint adds nothing, and a better independent height is
+available from the storey counts already collected plus shadow length measured
+in imagery during Part 6. Dropping it avoids a large download for no gain.
+Heights currently stand at storey count x 3.5 m, flagged provisional.
+
+**D36 and D37** (benchmark capital cost, grid emission factor) are Part 9
+inputs and are deferred until the economics are written.
+
+**Tracking policy for downloaded data.** `footprints_osm.json` is tracked
+because OpenStreetMap is a living map and a later re-download would not
+reproduce the same footprints. The irradiance files are not tracked: for a
+fixed date range both APIs return identical data, so they are genuinely
+reproducible.
