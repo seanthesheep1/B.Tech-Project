@@ -48,6 +48,20 @@ MODULE_POWER_DENSITY_W_PER_M2 = 215.0  # ~22% efficient module, glass area basis
 #                  criterion and is the project default.
 SHADING_CRITERION = "winter_9_to_3"
 
+# --- capacity back-estimation (used where nameplate kWp is unknown) ------
+# Installed capacity is absent from the Estate Office workbooks, so it is
+# back-calculated from monthly energy. Both values below are assumptions and
+# every figure derived from them must be labelled an estimate.
+# See docs/decisions.md, 2026-09-22, for the circularity this must not be used
+# for: capacity derived this way can never validate the FR-4 generation model.
+PEAK_SUN_HOURS = {  # kWh/m2/day on a 15 deg south plane at Delhi, by month
+    1: 4.8, 2: 5.5, 3: 6.2, 4: 6.6, 5: 6.5, 6: 5.6,
+    7: 4.6, 8: 4.5, 9: 5.2, 10: 5.7, 11: 5.1, 12: 4.6,
+}
+PERFORMANCE_RATIO = 0.78
+MIN_MONTHS_FOR_CAPACITY = 3   # below this the median is not meaningful
+OUTAGE_MONTHS = 6             # idle this long counts as stopped, not seasonal
+
 # --- loss stack (FR-4) ---------------------------------------------------
 # Itemised rather than a single lumped figure, as the specification requires.
 LOSSES = {

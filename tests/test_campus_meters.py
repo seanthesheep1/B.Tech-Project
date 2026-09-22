@@ -79,3 +79,68 @@ def test_meter_numbers_are_recognised_by_shape():
     assert campus_meters._is_meter_number(29490556)
     assert not campus_meters._is_meter_number(60)        # a meter factor
     assert not campus_meters._is_meter_number(1234)      # a register reading
+
+
+# --- capacity estimation and outage detection ------------------------------
+
+def monthly_series(kwh_by_month, meter=999, mf=1.0):
+    """Build a plant whose register rises by the given energy each month."""
+    plant = campus_meters.Plant(meter=meter, location="Test", meter_factor=mf)
+    register, readings = 1000.0, {}
+    for month, kwh in kwh_by_month:
+        y, m = int(month[:4]), int(month[5:])
+        readings[dt.date(y, m, 1)] = register
+        register += kwh / mf
+        readings[dt.date(y, m, 28)] = register
+    plant.readings = readings
+    return plant
+
+
+def test_capacity_needs_enough_live_months():
+    assert monthly_series([("2024-01", 5000.0)]).estimated_kwp is None
+
+
+def test_capacity_is_recovered_from_energy():
+    """A 50 kWp plant's monthly energy must estimate back to about 50 kWp."""
+    import calendar
+    from btp_solar import config
+    months = [(f"2024-{m:02d}",
+               50.0 * config.PEAK_SUN_HOURS[m] * calendar.monthrange(2024, m)[1]
+               * config.PERFORMANCE_RATIO)
+              for m in range(1, 13)]
+    assert monthly_series(months).estimated_kwp == pytest.approx(50.0, rel=0.02)
+
+
+def test_capacity_ignores_a_single_odd_month():
+    """The median must not be dragged by one bad month."""
+    import calendar
+    from btp_solar import config
+    months = [(f"2024-{m:02d}",
+               50.0 * config.PEAK_SUN_HOURS[m] * calendar.monthrange(2024, m)[1]
+               * config.PERFORMANCE_RATIO)
+              for m in range(1, 13)]
+    months[5] = (months[5][0], months[5][1] * 10)
+    assert monthly_series(months).estimated_kwp == pytest.approx(50.0, rel=0.05)
+
+
+def test_a_live_plant_reports_no_loss():
+    months = [(f"2024-{m:02d}", 5000.0) for m in range(1, 13)]
+    assert monthly_series(months).lost_kwh("2024-12") == 0.0
+
+
+def test_a_short_gap_is_not_an_outage():
+    """Five idle months could be missing readings; do not cry outage."""
+    months = [(f"2024-{m:02d}", 5000.0) for m in range(1, 8)]
+    assert monthly_series(months).lost_kwh("2024-12") == 0.0
+
+
+def test_a_long_gap_is_an_outage_and_is_costed():
+    months = [(f"2024-{m:02d}", 5000.0) for m in range(1, 5)]
+    plant = monthly_series(months)
+    assert plant.months_idle("2025-04") == 12
+    assert plant.lost_kwh("2025-04") > 0
+
+
+def test_months_between_counts_across_a_year_boundary():
+    assert campus_meters._months_between("2024-11", "2025-02") == 3
+    assert campus_meters._months_between("2024-01", "2024-01") == 0

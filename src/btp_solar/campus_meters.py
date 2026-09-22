@@ -22,11 +22,15 @@ wrong:
 
 from __future__ import annotations
 
+import calendar
 import datetime as dt
 import re
+import statistics
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from . import config
 
 DATE_FORMATS = ("%d.%m.%Y", "%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d")
 
@@ -74,6 +78,69 @@ class Plant:
     def annual_kwh(self, year: int) -> float:
         prefix = str(year)
         return sum(v for m, v in self.monthly_kwh.items() if m.startswith(prefix))
+
+    @property
+    def live_months(self) -> list[str]:
+        """Months in which this plant actually generated, oldest first."""
+        return sorted(m for m, kwh in self.monthly_kwh.items() if kwh > 0)
+
+    @property
+    def estimated_kwp(self) -> float | None:
+        """Capacity back-calculated from monthly energy.
+
+        kWp = kWh / (days x peak sun hours x performance ratio), taken as the
+        median across live months so a single odd month cannot move it.
+
+        Returns None when there are too few live months for a median to mean
+        anything. This is an *estimate*: see the warning in config.
+        """
+        estimates = []
+        for month, kwh in self.monthly_kwh.items():
+            if kwh <= 0:
+                continue
+            year, mon = int(month[:4]), int(month[5:])
+            days = calendar.monthrange(year, mon)[1]
+            estimates.append(
+                kwh / (days * config.PEAK_SUN_HOURS[mon] * config.PERFORMANCE_RATIO)
+            )
+        estimates = [e for e in estimates if e > 0.5]
+        if len(estimates) < config.MIN_MONTHS_FOR_CAPACITY:
+            return None
+        return statistics.median(estimates)
+
+    def months_idle(self, as_of: str) -> int:
+        """Whole months since this plant last generated, counted to ``as_of``."""
+        live = self.live_months
+        if not live:
+            return 0
+        return _months_between(live[-1], as_of)
+
+    def lost_kwh(self, as_of: str) -> float:
+        """Energy this plant would have produced had it kept running.
+
+        Zero unless it has been idle longer than config.OUTAGE_MONTHS, so a
+        monsoon lull or a month of missing readings is not reported as an
+        outage.
+        """
+        idle = self.months_idle(as_of)
+        capacity = self.estimated_kwp
+        if capacity is None or idle < config.OUTAGE_MONTHS:
+            return 0.0
+
+        year, mon = (int(x) for x in self.live_months[-1].split("-"))
+        lost = 0.0
+        for _ in range(idle):
+            mon += 1
+            if mon > 12:
+                mon, year = 1, year + 1
+            days = calendar.monthrange(year, mon)[1]
+            lost += capacity * config.PEAK_SUN_HOURS[mon] * days * config.PERFORMANCE_RATIO
+        return lost
+
+
+def _months_between(start: str, end: str) -> int:
+    """Whole months from one YYYY-MM to another."""
+    return (int(end[:4]) - int(start[:4])) * 12 + (int(end[5:]) - int(start[5:]))
 
 
 def _is_meter_number(value) -> bool:

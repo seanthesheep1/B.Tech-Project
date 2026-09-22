@@ -300,3 +300,53 @@ criterion should be restated as "where the sources disagree, the choice is
 justified against measured generation" — which we have now done.
 
 Reproduce with `scripts/run_fr1_source_selection.py`.
+
+---
+
+## 2026-09-22 — Four existing plants have stopped; the cost of the outages
+
+Differencing the registers shows **four of the 31 plants have not generated for
+six months or more**:
+
+| Plant | est. kWp | Last generated | Months idle | Lost MWh |
+|---|---|---|---|---|
+| Main / Amaltas Guest House | 34 | May 2024 | 23 | 97.9 |
+| Central Library | 38 | Jun 2025 | 10 | 47.4 |
+| Main Building | 14 | Aug 2025 | 8 | 14.7 |
+| Vishwakarma | 9 | Oct 2025 | 6 | 6.8 |
+| | | | | **166.8** |
+
+At a provisional ₹8/kWh that is roughly **₹13 lakh of electricity not
+generated**, with about **₹1 lakh a month** still being lost from 95 kWp
+standing idle.
+
+**Why it went unnoticed.** A reading was written down every day throughout —
+the register simply never moved. Collected faithfully, filed, never
+differenced. The evidence was in the workbooks from the day they were handed
+over.
+
+### Honesty about the numbers
+
+The **outages are fact**: a register that does not move has not generated.
+
+The **rupee figures are estimates** resting on two assumptions — the
+back-calculated capacity in `Plant.estimated_kwp`, and a tariff of ₹8/kWh which
+is provisional until D38 arrives. They must be reported as indicative, with the
+method stated. The outage count and durations need no such caveat.
+
+### Guard against false positives
+
+`lost_kwh` reports nothing until a plant has been idle longer than
+`config.OUTAGE_MONTHS` (six), so a monsoon lull or a spell of missing readings
+is not announced as a failure. `test_a_short_gap_is_not_an_outage` pins this.
+
+### Why this matters to the project
+
+The specification frames the work as finding untapped roofs. This is the
+opposite question — whether what is already installed still works — and it is
+answerable from data the Institute already holds, before any new panel is
+costed. It belongs in the report as a finding in its own right, and it should
+be raised with Prof. Bansal early, because unlike everything else in this
+project it has a consequence today.
+
+Reproduce with `scripts/run_outage_report.py`.
