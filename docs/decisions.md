@@ -208,3 +208,32 @@ because OpenStreetMap is a living map and a later re-download would not
 reproduce the same footprints. The irradiance files are not tracked: for a
 fixed date range both APIs return identical data, so they are genuinely
 reproducible.
+
+## 2026-09-22 — PVGIS horizon profile validates the FR-2 geometry
+
+The horizon profile for the campus point was downloaded by hand. It is **not**
+the TMY that FR-1 needs, but it turned out to be worth keeping for two reasons.
+
+**It independently confirms the solar geometry.** PVGIS computes its own solar
+positions, and its winter solstice series agrees with our closed-form
+derivation to within rounding:
+
+| | ours | PVGIS |
+|---|---|---|
+| Elevation at solar noon, 21 Dec | 38.01 deg | 38.00 deg |
+| Elevation at the 09:00 design point | 22.32 deg | 22.30 deg |
+| Azimuth at the 09:00 design point | 44.53 deg | 44.50 deg |
+
+This matters because that geometry sets the ground coverage ratio, and the GCR
+sets every usable-area and installable-capacity figure in FR-2. It is now
+pinned by `test_matches_pvgis_winter_solstice`.
+
+**The far horizon is flat**, between 0.0 and 1.9 degrees in every direction. No
+distant terrain shades the campus, so all shading in FR-3 is local - adjacent
+buildings, parapets and trees. That simplifies Part 6 and is worth one line in
+the report.
+
+**Site elevation corrected** from an assumed 216 m to PVGIS's DEM value of
+229 m in `config.SITE_ELEVATION_M`.
+
+The TMY (D06) is still outstanding and FR-1 still cannot be evaluated.

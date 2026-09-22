@@ -24,7 +24,7 @@ REPORTS = ROOT / "reports"
 # Specification FR-1: irradiance series requested for this point.
 SITE_LAT = 28.545  # degrees north
 SITE_LON = 77.192  # degrees east
-SITE_ELEVATION_M = 216.0
+SITE_ELEVATION_M = 229.0  # PVGIS DEM for this point, 2026-09-22
 SITE_TZ = "Asia/Kolkata"
 
 # Projected CRS for all area and length computation. WGS 84 / UTM zone 43N.

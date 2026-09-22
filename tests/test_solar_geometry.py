@@ -83,3 +83,19 @@ def test_sun_below_horizon_is_rejected():
 def test_unknown_criterion_is_rejected():
     with pytest.raises(ValueError, match="unknown shading criterion"):
         design_sun_position(config.SITE_LAT, "summer_noon")
+
+
+def test_matches_pvgis_winter_solstice():
+    """Our closed-form geometry against PVGIS's own solar position.
+
+    PVGIS was asked for the horizon profile at the campus point; its winter
+    solstice series is an independent check on the derivation that sets the
+    ground coverage ratio, and therefore on every usable-area figure in FR-2.
+    Values read from data/horizon_28.545_77.192.json.
+    """
+    noon = design_sun_position(config.SITE_LAT, "winter_noon")
+    assert noon.elevation_deg == pytest.approx(38.0, abs=0.05)
+
+    nine = design_sun_position(config.SITE_LAT, "winter_9_to_3")
+    assert nine.elevation_deg == pytest.approx(22.3, abs=0.05)
+    assert nine.azimuth_from_south_deg == pytest.approx(44.5, abs=0.05)

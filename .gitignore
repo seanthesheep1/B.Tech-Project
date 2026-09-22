@@ -13,6 +13,8 @@ data/*
 # OSM is a living map: this extract is a dated snapshot and re-downloading it
 # later would not reproduce the same footprints, so it is tracked.
 !data/footprints_osm.json
+# PVGIS horizon profile: small, and it pins a regression test.
+!data/horizon_*.json
 # NASA POWER and PVGIS for a fixed date range are deterministic re-downloads,
 # so they stay out - see data/README.md.
 
