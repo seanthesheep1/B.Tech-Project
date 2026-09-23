@@ -485,3 +485,47 @@ re-check.
 
 `verified`, `digitised_by` and `digitised_date` were completed for B01, B02 and
 B09, which had been traced without the flags being set.
+
+## 2026-09-23 — Part 4 closed: FR-2 usable area
+
+The area chain has been run from the digitised layers and every intermediate
+value written to the register. **10,328 m2 of module area across the ten
+candidate roofs, giving 2,220.6 kWp.**
+
+| | m2 |
+|---|---|
+| gross digitised roof | 29,661 |
+| less obstructions | 8,457 |
+| less 1 m setback | 4,006 |
+| net available | 17,198 |
+| x GCR 0.707 x packing 0.85 | **10,328 module area** |
+
+**FR-2 acceptance: the usable area is derived, not assumed.** The ground
+coverage ratio of 0.707 comes from the winter design sun - 22.32 degrees
+elevation at 44.53 degrees east of south - and that geometry is confirmed
+against PVGIS to within rounding. The specification's objection to "an assumed
+percentage" is met.
+
+Usable fraction ranges from **13.6 per cent of gross roof on B08 to 50.5 per
+cent on B07**, against the 40 to 50 per cent rule of thumb in the workflow
+note. The rule holds only for roofs with few obstructions; it is badly wrong
+for cluttered ones, which is the second argument against scaling factors.
+
+### Open items carried into Part 5
+
+**B06 carries two obstructions typed `solar_panel`.** B06 was selected as a
+candidate precisely because it has no PV, and Lecture Hall Complex is not among
+the 29 metered locations. Either panels have been installed recently, or they
+are unmetered. Both are worth raising with Prof. Bansal: an unmetered array
+would also mean the fleet is larger than the meter data shows.
+
+**fid 19 on B06 subtracts 1,294 m2 while only 6 per cent of it lies on that
+roof.** Confirmed as intended on inspection and left as drawn, but it costs B06
+about 130 kWp and should be revisited if that roof's numbers look wrong later.
+
+**fid 18 on B06 is typed `open_air`.** Open sky is properly a hole in the roof
+polygon rather than an obstruction. As drawn the area is still subtracted
+correctly; only the setback around its edge is missed. Left as is.
+
+**B07 and B09 carry no obstructions**, inspected and confirmed. They show the
+two highest usable fractions, 50.5 and 48.5 per cent, which is consistent.

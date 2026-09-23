@@ -1,17 +1,17 @@
-building_id,building_name,category,role,selected,has_existing_pv,osm_id,lat,lon,storeys,height_m,height_source,footprint_source,gross_roof_area_m2,obstruction_area_m2,roof_perimeter_m,digitised_by,digitised_date,notes
-B01,Block 3,academic,candidate,yes,no,44408522,28.546074,77.192108,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,"matched pair: Blocks 1,2,5,6 carry PV, 3 and 4 do not; identical design and era"
-B02,Block 4,academic,candidate,yes,no,44408521,28.546374,77.191589,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,matched pair with the solar-carrying blocks
-B03,Dronagiri House,hostel,candidate,yes,no,1527964005,28.546791,77.187854,7,24.5,site_count x 3.5 m (provisional),osm,,,,,,one of only 3 hostels without PV against 13 with it
-B04,Saptagiri House,hostel,candidate,yes,no,1527964006,28.547193,77.187161,7,24.5,site_count x 3.5 m (provisional),osm,,,,,,one of only 3 hostels without PV
-B05,Vindhyachal Hostel,hostel,candidate,yes,no,301448255,28.548495,77.186385,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,one of only 3 hostels without PV
-B06,Lecture Hall Complex,academic,candidate,yes,no,19120455,28.543076,77.193174,5,17.5,site_count x 3.5 m (provisional),osm,,,,,,large roof; daytime load coincides with generation
-B07,Academic Complex East,academic,candidate,yes,no,1088204564,28.54399,77.194624,6,21.0,site_count x 3.5 m (provisional),osm,,,,,,tallest candidate at 6 storeys; large roof
-B08,Department of Textile Technology,laboratory,candidate,yes,no,1088204568,28.544007,77.193548,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,laboratory block per scope
-B09,Department of Material Science,laboratory,candidate,yes,no,1088204567,28.544408,77.193597,4,14.0,site_count x 3.5 m (provisional),osm,,,,,,laboratory block per scope
-B10,Central Workshop,service,candidate,yes,no,358768033,28.543513,77.192303,2,7.0,site_count x 3.5 m (provisional),osm,,,,,,the low-rise service building the scope requires
-V01,Bharti Block,existing_pv,validation,yes,yes,,,,,,,,,,,,,"28 live months, largest generator, continuous record"
-V02,Block No. 1 (KSBS),existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B01/B02; 28 live months
-V03,Block No. 5 (Near V-112),existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B01/B02
-V04,Block No. 6 (Near VI-136),existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B01/B02; 28 live months
-V05,Karakoram Boys Hostel,existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B03/B04/B05; second largest generator
-V06,Shivalik Boys Hostel,existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B03/B04/B05
+building_id,building_name,category,role,selected,has_existing_pv,osm_id,lat,lon,storeys,height_m,height_source,footprint_source,gross_roof_area_m2,obstruction_area_m2,roof_perimeter_m,digitised_by,digitised_date,notes,setback_area_m2,net_available_area_m2,ground_coverage_ratio,packing_factor,module_area_m2,installable_capacity_kwp,usable_fraction_of_roof,design_sun_elevation_deg,design_criterion,obstruction_count
+B01,Block 3,academic,candidate,yes,no,44408522,28.546074,77.192108,4,14.0,site_count x 3.5 m (provisional),osm,3132,274.7,625.4,,,"matched pair: Blocks 1,2,5,6 carry PV, 3 and 4 do not; identical design and era",622.3,2235,0.7066,0.85,1342,288.6,0.4286,22.32,winter_9_to_3,4
+B02,Block 4,academic,candidate,yes,no,44408521,28.546374,77.191589,4,14.0,site_count x 3.5 m (provisional),osm,2729,203.8,457.3,,,matched pair with the solar-carrying blocks,454.1,2071,0.7066,0.85,1244,267.5,0.4558,22.32,winter_9_to_3,4
+B03,Dronagiri House,hostel,candidate,yes,no,1527964005,28.546791,77.187854,7,24.5,site_count x 3.5 m (provisional),osm,2214,848.3,239.4,,,one of only 3 hostels without PV against 13 with it,236.2,1130,0.7066,0.85,678.5,145.9,0.3064,22.32,winter_9_to_3,2
+B04,Saptagiri House,hostel,candidate,yes,no,1527964006,28.547193,77.187161,7,24.5,site_count x 3.5 m (provisional),osm,2161,823.2,230.7,,,one of only 3 hostels without PV,227.6,1110,0.7066,0.85,666.5,143.3,0.3085,22.32,winter_9_to_3,2
+B05,Vindhyachal Hostel,hostel,candidate,yes,no,301448255,28.548495,77.186385,4,14.0,site_count x 3.5 m (provisional),osm,3653,974.7,559.3,,,one of only 3 hostels without PV,556.1,2122,0.7066,0.85,1274,274,0.3489,22.32,winter_9_to_3,2
+B06,Lecture Hall Complex,academic,candidate,yes,no,19120455,28.543076,77.193174,5,17.5,site_count x 3.5 m (provisional),osm,6379,2058,560.1,,,large roof; daytime load coincides with generation,557,3764,0.7066,0.85,2261,486,0.3544,22.32,winter_9_to_3,3
+B07,Academic Complex East,academic,candidate,yes,no,1088204564,28.54399,77.194624,6,21.0,site_count x 3.5 m (provisional),osm,2393,0,382.5,,,tallest candidate at 6 storeys; large roof,379.4,2014,0.7066,0.85,1209,260,0.5054,22.32,winter_9_to_3,0
+B08,Department of Textile Technology,laboratory,candidate,yes,no,1088204568,28.544007,77.193548,4,14.0,site_count x 3.5 m (provisional),osm,4003,2531,565.8,,,laboratory block per scope,562.7,909.8,0.7066,0.85,546.4,117.5,0.1365,22.32,winter_9_to_3,2
+B09,Department of Material Science,laboratory,candidate,yes,no,1088204567,28.544408,77.193597,4,14.0,site_count x 3.5 m (provisional),osm,597.6,0,118.1,,,laboratory block per scope,115,482.7,0.7066,0.85,289.9,62.32,0.485,22.32,winter_9_to_3,0
+B10,Central Workshop,service,candidate,yes,no,358768033,28.543513,77.192303,2,7.0,site_count x 3.5 m (provisional),osm,2399,742.9,299.4,,,the low-rise service building the scope requires,296.2,1360,0.7066,0.85,816.5,175.6,0.3404,22.32,winter_9_to_3,2
+V01,Bharti Block,existing_pv,validation,yes,yes,,,,,,,,,,,,,"28 live months, largest generator, continuous record",,,,,,,,,,
+V02,Block No. 1 (KSBS),existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B01/B02; 28 live months,,,,,,,,,,
+V03,Block No. 5 (Near V-112),existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B01/B02,,,,,,,,,,
+V04,Block No. 6 (Near VI-136),existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B01/B02; 28 live months,,,,,,,,,,
+V05,Karakoram Boys Hostel,existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B03/B04/B05; second largest generator,,,,,,,,,,
+V06,Shivalik Boys Hostel,existing_pv,validation,yes,yes,,,,,,,,,,,,,pairs with B03/B04/B05,,,,,,,,,,

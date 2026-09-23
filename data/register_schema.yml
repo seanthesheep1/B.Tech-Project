@@ -35,6 +35,9 @@ usable_area:  # written by scripts/run_fr2_usable_area.py
   module_area_m2:           {unit: m2, module: FR-2, source: "net x GCR x packing factor"}
   installable_capacity_kwp: {unit: kWp, module: FR-2, source: "module area x MODULE_POWER_DENSITY_W_PER_M2 / 1000"}
   usable_fraction_of_roof:  {unit: "-", module: FR-2, source: "module area / gross roof area; the sanity check on the whole chain"}
+  obstruction_count:        {unit: count, module: FR-2, source: "number of polygons digitised in obstructions.gpkg for this roof"}
+  design_sun_elevation_deg: {unit: deg, module: FR-2, source: "sun elevation at the no-shading design point; the GCR derives from it"}
+  design_criterion:         {unit: "-", module: FR-2, source: "config.SHADING_CRITERION: winter_noon or winter_9_to_3"}
 
 shading:  # FR-3, week 6
   annual_shading_loss:      {unit: "-", module: FR-3, source: "1 - shaded POA / unshaded POA over the year, from UMEP"}
