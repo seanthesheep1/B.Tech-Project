@@ -40,6 +40,7 @@ X_RANGE = (713_000.0, 716_000.0)
 Y_RANGE = (3_158_000.0, 3_161_000.0)
 DUPLICATE_VERTEX_TOL = 0.01  # metres
 PLACEHOLDER_OBSTRUCTION_FRACTION = 0.08
+OBSTRUCTION_OVERLAP_MIN = 0.5  # corners that must sit on the named roof
 
 
 def envelope_size(flags: int) -> int:
@@ -171,14 +172,23 @@ def main() -> int:
            sorted({r["building_id"] for r in roofs
                    for ring in r["_rings"] if ring[0] != ring[-1]}))
 
-    misplaced = []
+    # Fraction of corners inside, not the centroid: an L-shaped or curved
+    # polygon has its centre point outside itself, which produced a false
+    # positive on a perfectly good obstruction.
+    misplaced, untyped = [], []
     for o in obstructions:
-        c = centroid(o["_rings"][0])
-        owner = next((b for b, rs in by_id.items()
-                      if any(point_in_polygon(c, r["_rings"]) for r in rs)), None)
-        if owner != o["building_id"]:
-            misplaced.append(f"fid {o['fid']} says {o['building_id']}, sits on {owner}")
+        corners = o["_rings"][0][:-1]
+        named = by_id.get(o["building_id"], [])
+        share = (sum(1 for c in corners
+                     if any(point_in_polygon(c, r["_rings"]) for r in named))
+                 / len(corners)) if named else 0.0
+        if share < OBSTRUCTION_OVERLAP_MIN:
+            misplaced.append(f"fid {o['fid']} says {o['building_id']} "
+                             f"but only {share:.0%} of it is on that roof")
+        if not o["obstruction_type"]:
+            untyped.append(f"fid {o['fid']}")
     report("obstructions on the right roof", misplaced)
+    report("every obstruction has a type", untyped)
 
     obstruction_area = collections.defaultdict(float)
     for o in obstructions:
