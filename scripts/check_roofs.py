@@ -194,13 +194,22 @@ def main() -> int:
         p = sum(perimeter(ring) for r in rs for ring in r["_rings"])
         measured = bid in obstruction_area
         obstruction = obstruction_area.get(bid, PLACEHOLDER_OBSTRUCTION_FRACTION * a)
-        result = fr2_usable_area.compute(RoofMeasurements(bid, a, obstruction, p))
         osm = next((r["osm_area_m2"] for r in rs if r["osm_area_m2"]), 0) or 0
         total_osm += osm
         total_now += a
-        total_kwp += result.installable_capacity_kwp
         change = f"{(a - osm) / osm * 100:+.0f}%" if osm else "-"
-        print(f"{bid:<5}{(rs[0]['building_name'] or '?')[:25]:<26}{osm:>8.0f}{a:>10.0f}"
+        name = (rs[0]["building_name"] or "?")[:25]
+        try:
+            result = fr2_usable_area.compute(RoofMeasurements(bid, a, obstruction, p))
+        except ValueError as exc:
+            # A tangled outline gives a tiny area against a long perimeter, so the
+            # setback eats everything. Report it rather than aborting the run.
+            problems += 1
+            print(f"{bid:<5}{name:<26}{osm:>8.0f}{a:>10.0f}{change:>8}{'--':>8}  "
+                  f"UNUSABLE: {exc.args[0].split(': ', 1)[-1]}")
+            continue
+        total_kwp += result.installable_capacity_kwp
+        print(f"{bid:<5}{name:<26}{osm:>8.0f}{a:>10.0f}"
               f"{change:>8}{result.installable_capacity_kwp:>8.1f}  "
               f"{'measured' if measured else 'PLACEHOLDER'}")
     print("-" * 74)
