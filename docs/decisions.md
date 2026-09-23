@@ -446,3 +446,42 @@ their OSM outlines with the 8 per cent obstruction placeholder.
 Current total **39,541 m2 and 4,202 kWp**, down from the 4,429 kWp preliminary
 figure as the hand digitising pulls the outlines off open ground and onto the
 roofs themselves.
+
+## 2026-09-23 — All ten roofs digitised
+
+Every candidate roof is now hand-corrected and `verified`. The campus footprint
+falls from **41,639 m2 on OpenStreetMap outlines to 29,661 m2 digitised, a drop
+of 29 per cent**, and installable capacity with it to 3,035 kWp.
+
+That 29 per cent is a result in its own right. Many rooftop potential studies
+stop at open building footprints; this measures what stopping there costs. The
+error is also **not uniform** - B05 Vindhyachal came in within half a per cent
+of its OSM outline while B10 Central Workshop fell 67 per cent - so it cannot
+be corrected with a blanket factor. That is the argument for digitising rather
+than scaling.
+
+| | OSM | digitised | change |
+|---|---|---|---|
+| B01 Block 3 | 4,501 | 3,132 | −30% |
+| B02 Block 4 | 3,287 | 2,729 | −17% |
+| B03 Dronagiri House | 3,854 | 2,214 | −43% |
+| B04 Saptagiri House | 2,698 | 2,161 | −20% |
+| B05 Vindhyachal Hostel | 3,663 | 3,653 | −0% |
+| B06 Lecture Hall Complex | 7,965 | 6,379 | −20% |
+| B07 Academic Complex East | 3,643 | 2,393 | −34% |
+| B08 Textile Technology | 4,126 | 4,003 | −3% |
+| B09 Material Science | 646 | 598 | −8% |
+| B10 Central Workshop | 7,257 | 2,399 | −67% |
+
+**B10 needs a second look before the figure is quoted.** A 67 per cent fall on
+what was the largest roof is either correct - the OSM polygon wrapping a
+workshop yard rather than a roof - or an under-trace. It is worth about 500 kWp.
+
+**B06 carries no courtyard ring.** The previous outline had a 408 m2 hole and a
+containment test against the new outline was inconclusive, 18 of 37 courtyard
+vertices falling inside. Inspected on screen and judged not to need one. If
+B06's yield later looks high against its neighbours, this is the first thing to
+re-check.
+
+`verified`, `digitised_by` and `digitised_date` were completed for B01, B02 and
+B09, which had been traced without the flags being set.
