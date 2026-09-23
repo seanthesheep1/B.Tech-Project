@@ -21,6 +21,10 @@ data/*
 !data/obstructions_template.geojson
 !data/roofs.gpkg
 !data/obstructions.gpkg
+
+# Presentation deliverables and their figures
+!reports/*.pptx
+!reports/figures/**
 # NASA POWER and PVGIS for a fixed date range are deterministic re-downloads,
 # so they stay out - see data/README.md.
 
