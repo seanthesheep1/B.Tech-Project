@@ -1379,3 +1379,52 @@ of any recent campus installation gives a capital cost from the same buyer, the
 same city and the same year. Those beat any published benchmark, and if neither
 arrives the rupee figures are labelled as estimates rather than quietly sourced
 from a scheme that does not apply.
+
+## 2026-11-17 — What the photographs can and cannot settle about row spacing
+
+Roof access is not permitted, so the row pitch had to come from three handheld
+photographs. Here is how far that goes, and where it stops.
+
+**Settled.** The modules are polycrystalline, mounted landscape, and the cell
+grid reads as 60-cell, so roughly 1.65 m by 0.99 m. The frames are ballasted on
+concrete blocks with no roof penetration. The arrays are tilted. At least one
+building uses elevated canopy frames instead, standing clear of the roof
+clutter.
+
+**Bounded, not measured.** In the near-overhead photograph the distance from
+one row's leading edge to the next reads as 1.4 to 1.6 times the panel's
+apparent up-slope extent. With tilt somewhere between 10 and 20 degrees that
+gives a ground coverage ratio between about 0.64 and 0.74:
+
+| pitch / projection | 10 deg | 15 deg | 20 deg |
+|---|---|---|---|
+| 1.40 | 0.725 | 0.739 | 0.760 |
+| 1.50 | 0.677 | 0.690 | 0.709 |
+| 1.60 | 0.635 | 0.647 | 0.665 |
+
+The project assumes 0.707, which sits inside that band rather than at its edge.
+
+**So the self-shading hypothesis is not supported.** The suggestion that the
+installed rows are packed tighter than the design spacing, and therefore
+self-shade in winter, came from an eyeball impression of the photographs. A
+measured impression of the same photographs puts the installed spacing at
+roughly what the model already assumes. The winter bias in the back-test
+remains unexplained, and seasonal soiling remains the leading candidate.
+
+**Why no single number is quoted.** Three handheld oblique photographs, no
+camera calibration, and no object of known length in frame. Readings taken from
+different parts of the same image disagree by more than the quantity being
+measured: the two buildings photographed do not obviously share a spacing, and
+attempts to recover tilt from the apparent aspect ratio of a module returned
+values that are physically impossible, which is the tell that perspective is
+doing more work than the measurement. Quoting 0.69 from this would be
+false precision.
+
+**What would settle it, without going on a roof.** The arrays are visible from
+above in the imagery already loaded in QGIS. Measuring the span of ten rows in
+one line and dividing by ten reduces the error by a factor of ten and removes
+perspective entirely. That is a five-minute job on screen and it is the right
+way to close this.
+
+Until then the band stands, and it is worth about plus or minus 10% on campus
+capacity - material, but not enough to move the headline.

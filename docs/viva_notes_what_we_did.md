@@ -189,6 +189,9 @@ the dead plants. That is worth more than any slide.
   and the notebook now saves immediately. See `docs/pv_census_integration.md`.
 - The existing arrays were photographed on 2026-11-17 and are **tilted and
   ballasted**, with at least one building on elevated canopy frames. The 15
-  degree assumption survives. Still to measure: the frame's rear-leg height
-  and the row pitch, which together would test whether tight row spacing
-  explains the winter bias. See `docs/decisions.md`.
+  degree assumption survives. Roof access is not permitted, so row pitch was
+  bounded from the photographs instead: a ground coverage ratio of roughly 0.64
+  to 0.74, which contains the 0.707 the model assumes. The suspicion that the
+  rows were packed tighter than design, and self-shaded in winter, is therefore
+  **not supported**. Settling it properly means measuring ten rows at once in
+  QGIS. See `docs/decisions.md`.
