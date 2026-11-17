@@ -153,18 +153,46 @@ reported beside them.
 
 ## 4. Things only you can do
 
-| | Unblocks |
-|---|---|
-| Record the Esri imagery acquisition date | FR-3, which cannot otherwise be evaluated at all |
-| Get a Google Maps Static API key | the census |
-| Download MNRE, CEA and DERC documents | all of the economics |
-| Email the Estate Office: D16, D17, D18 | nothing now — decided 2026-11-17 to proceed without them. Still worth sending so the gap reads as a managed risk |
-| Measure obstruction heights on two roofs | FR-3's most load-bearing assumption — roof clutter is 85% of the modelled loss |
-| Confirm one floor height | every building height derives from it |
-| Look at one existing array: flat or tilted? | §3, worth ~900 kWp |
-| Re-check B10 Central Workshop | ~500 kWp, flagged in the mid-term report and still open |
-| Locate Blocks 1, 5 and 6 | the census checking them |
-| Ask Prof. Bansal to confirm the 0.20 back-test tolerance | it is our criterion, not the specification's |
+Revised 2026-11-17. Most of this table has emptied, and not because the work
+was dropped: Esri's World Imagery tile service turns out to be reachable
+without a key, at 0.26 m per pixel, and it serves the very scene the roofs were
+traced against. Anything that was waiting on a roof visit or on a paid imagery
+key is now a desk job.
+
+| | Unblocks | State |
+|---|---|---|
+| Ask Prof. Bansal to confirm the 0.20 back-test tolerance, and the FR-1/FR-4 restatement | our criterion, not the specification's | **open - only you** |
+| Locate Blocks 1, 5 and 6 (V02/V03/V04 carry no coordinates) | the census cross-check | **open - only you**, low priority while the census is cut |
+| Email the Estate Office: D16/D17/D18, plus one campus bill and one installed cost | nothing is blocked; upgrades two estimates to measurements | optional |
+| Record the Esri imagery acquisition date | FR-3 | **done 2026-11-17** - 2025-10-23, in `data/imagery_provenance.json` |
+| Look at one existing array: flat or tilted? | the tilt argument | **done** - tilted, ballasted, photographed |
+| Get a Google Maps Static API key | the census | **not needed** - Esri tiles are free, keyless, and already our scene |
+| Download MNRE, CEA and DERC documents | the economics | CEA **done** and in `data/`; MNRE is residential-only; DERC publishes no current schedule |
+| Measure obstruction heights on two roofs | FR-3's most load-bearing assumption | **moved to me** - roof access is not permitted, so heights come from shadow lengths on the dated imagery |
+| Confirm one floor height | every building height derives from it | **moved to me** - same shadow method |
+| Re-check B10 Central Workshop | ~500 kWp of the headline | **moved to me** - re-inspection against imagery is a desk job |
+
+### Why the shadow method replaces the tape measure
+
+`OBSTRUCTION_HEIGHTS_M` is currently six assumed numbers - 3.0 m for a water
+tank, 3.0 for a stair room, 4.0 for a lift room, and so on - and roof clutter
+is about 85% of the modelled shading loss. So those six numbers carry more of
+FR-3 than anything else in the model, and none of them was measured.
+
+With a known acquisition date and a known latitude, an object's height follows
+from the length of its shadow. The 21 obstructions already carry coordinates in
+`obstructions.gpkg`, the imagery is 0.26 m per pixel, and a 3 m tank on 23
+October casts between 3.0 and 4.0 m depending on the hour - ten to fifteen
+pixels, which is measurable. The sun's position at capture is fixed from the
+shadows' bearing rather than assumed, as recorded in `docs/decisions.md`.
+
+That turns the weakest assumption in FR-3 into a measurement, without anyone
+setting foot on a roof.
+
+**Attribution.** The imagery is Esri World Imagery and the report must say so.
+The project already streams the same service into QGIS, so fetching a bounded
+set of tiles over the ten candidate roofs is the same use by another route, not
+a new one.
 
 ---
 
