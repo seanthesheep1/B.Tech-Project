@@ -28,8 +28,8 @@ from pathlib import Path
 
 sys.path.insert(0, "src")
 
-from btp_solar import config, fr2_usable_area  # noqa: E402
-from btp_solar.fr2_usable_area import RoofMeasurements  # noqa: E402
+from btp_solar import config, fr2_usable_area
+from btp_solar.fr2_usable_area import RoofMeasurements
 
 ROOFS = config.DATA / "roofs.gpkg"
 OBSTRUCTIONS = config.DATA / "obstructions.gpkg"
@@ -39,6 +39,10 @@ EXPECTED = {f"B{i:02d}" for i in range(1, 11)}
 X_RANGE = (713_000.0, 716_000.0)
 Y_RANGE = (3_158_000.0, 3_161_000.0)
 DUPLICATE_VERTEX_TOL = 0.01  # metres
+# Used only for a roof whose obstructions have not been surveyed yet. A roof
+# that was walked and found clear carries a real zero, not this: the two are
+# told apart by the obstructions_surveyed flag on the roof itself, because
+# "no polygons drawn" otherwise means both "nothing there" and "not looked at".
 PLACEHOLDER_OBSTRUCTION_FRACTION = 0.08
 OBSTRUCTION_OVERLAP_MIN = 0.5  # corners that must sit on the named roof
 
@@ -175,7 +179,12 @@ def main() -> int:
     # Fraction of corners inside, not the centroid: an L-shaped or curved
     # polygon has its centre point outside itself, which produced a false
     # positive on a perfectly good obstruction.
-    misplaced, untyped = [], []
+    # An obstruction may legitimately sit mostly off its named roof - an array
+    # spanning a gap between blocks, say - but that has to be a decision
+    # somebody made, not a defect nobody noticed. The overlap_reviewed flag
+    # carries that decision, so an accepted case stays visible without
+    # reporting as a failure every run.
+    misplaced, accepted, untyped = [], [], []
     for o in obstructions:
         corners = o["_rings"][0][:-1]
         named = by_id.get(o["building_id"], [])
@@ -183,11 +192,17 @@ def main() -> int:
                      if any(point_in_polygon(c, r["_rings"]) for r in named))
                  / len(corners)) if named else 0.0
         if share < OBSTRUCTION_OVERLAP_MIN:
-            misplaced.append(f"fid {o['fid']} says {o['building_id']} "
-                             f"but only {share:.0%} of it is on that roof")
+            where = (f"fid {o['fid']} says {o['building_id']} "
+                     f"but only {share:.0%} of it is on that roof")
+            if (o.get("overlap_reviewed") or "no") == "yes":
+                accepted.append(where)
+            else:
+                misplaced.append(where)
         if not o["obstruction_type"]:
             untyped.append(f"fid {o['fid']}")
     report("obstructions on the right roof", misplaced)
+    for note in accepted:
+        print(f"  note  {note} - reviewed and accepted")
     report("every obstruction has a type", untyped)
 
     obstruction_area = collections.defaultdict(float)
@@ -202,8 +217,13 @@ def main() -> int:
         rs = by_id[bid]
         a = sum(net_area(r["_rings"]) for r in rs)
         p = sum(perimeter(ring) for r in rs for ring in r["_rings"])
-        measured = bid in obstruction_area
-        obstruction = obstruction_area.get(bid, PLACEHOLDER_OBSTRUCTION_FRACTION * a)
+        surveyed = (rs[0].get("obstructions_surveyed") or "no") == "yes"
+        if surveyed:
+            obstruction = obstruction_area.get(bid, 0.0)
+            label = "measured" if bid in obstruction_area else "none found"
+        else:
+            obstruction = PLACEHOLDER_OBSTRUCTION_FRACTION * a
+            label = "PLACEHOLDER"
         osm = next((r["osm_area_m2"] for r in rs if r["osm_area_m2"]), 0) or 0
         total_osm += osm
         total_now += a
@@ -221,16 +241,26 @@ def main() -> int:
         total_kwp += result.installable_capacity_kwp
         print(f"{bid:<5}{name:<26}{osm:>8.0f}{a:>10.0f}"
               f"{change:>8}{result.installable_capacity_kwp:>8.1f}  "
-              f"{'measured' if measured else 'PLACEHOLDER'}")
+              f"{label}")
     print("-" * 74)
     drop = (total_now - total_osm) / total_osm * 100 if total_osm else 0
     print(f"{'TOTAL':<31}{total_osm:>8.0f}{total_now:>10.0f}{drop:>+7.0f}%{total_kwp:>8.1f} kWp")
 
     verified = sum(1 for rs in by_id.values() if rs[0]["verified"] == "yes")
-    placeholders = sum(1 for b in by_id if b not in obstruction_area)
+    unsurveyed = sorted(b for b, rs in by_id.items()
+                        if (rs[0].get("obstructions_surveyed") or "no") != "yes")
+    clear = sorted(b for b, rs in by_id.items()
+                   if (rs[0].get("obstructions_surveyed") or "no") == "yes"
+                   and b not in obstruction_area)
     print(f"\nverified {verified}/{len(EXPECTED)}   "
-          f"{placeholders} roofs still on the {PLACEHOLDER_OBSTRUCTION_FRACTION:.0%} "
-          f"obstruction placeholder")
+          f"obstructions surveyed on {len(by_id) - len(unsurveyed)}/{len(by_id)}")
+    if clear:
+        print(f"  surveyed and found clear: {', '.join(clear)} "
+              f"- these carry a real zero, not the placeholder")
+    if unsurveyed:
+        print(f"  NOT yet surveyed: {', '.join(unsurveyed)} "
+              f"- still on the {PLACEHOLDER_OBSTRUCTION_FRACTION:.0%} placeholder, "
+              f"so their kWp is provisional")
 
     print(f"\n{problems} problem(s)" if problems else "\nno problems found")
     return 1 if problems else 0

@@ -71,3 +71,126 @@ def test_every_roof_joins_to_the_register(roofs):
     ids = {r["building_id"] for r in register.load()}
     for feature in roofs:
         assert feature["properties"]["building_id"] in ids
+
+
+# --- surveyed-and-clear is not the same as not-yet-surveyed ----------------
+
+def test_every_roof_records_whether_its_obstructions_were_surveyed():
+    """A roof with no obstruction polygons is ambiguous without this flag.
+
+    It means either "walked and found clear", which is a real zero, or "not
+    looked at yet", which must carry the 8% placeholder. `check_roofs.py`
+    treated both as the second, which quietly cost B07 and B09 about 31 kWp
+    between them and made the script's campus total disagree with the register.
+    """
+    import sqlite3
+
+    from btp_solar import config
+
+    gpkg = config.DATA / "roofs.gpkg"
+    if not gpkg.exists():
+        pytest.skip("roofs.gpkg not present")
+
+    with sqlite3.connect(gpkg) as conn:
+        columns = [r[1] for r in conn.execute("PRAGMA table_info(roofs)")]
+        assert "obstructions_surveyed" in columns, (
+            "roofs.gpkg must record whether each roof was surveyed for obstructions"
+        )
+        rows = dict(conn.execute(
+            "SELECT building_id, obstructions_surveyed FROM roofs"))
+
+    assert rows, "no roofs in the layer"
+    for building_id, flag in rows.items():
+        assert flag in ("yes", "no"), f"{building_id} has {flag!r}, expected yes or no"
+
+
+def test_a_surveyed_roof_with_no_obstructions_keeps_its_full_area():
+    """The placeholder must not be applied to a roof that was found clear."""
+    from btp_solar import config, fr2_usable_area
+    from btp_solar.fr2_usable_area import RoofMeasurements
+
+    clear = fr2_usable_area.compute(RoofMeasurements("clear", 2000.0, 0.0, 200.0))
+    placeholder = fr2_usable_area.compute(
+        RoofMeasurements("unsurveyed", 2000.0, 0.08 * 2000.0, 200.0))
+
+    assert clear.installable_capacity_kwp > placeholder.installable_capacity_kwp
+    assert config.SETBACK_M > 0
+
+
+def test_the_register_agrees_with_the_layer_on_which_roofs_were_surveyed():
+    """One fact, two files: they must not drift apart."""
+    import sqlite3
+
+    from btp_solar import config, register
+
+    gpkg = config.DATA / "roofs.gpkg"
+    if not gpkg.exists():
+        pytest.skip("roofs.gpkg not present")
+
+    with sqlite3.connect(gpkg) as conn:
+        layer = dict(conn.execute(
+            "SELECT building_id, obstructions_surveyed FROM roofs"))
+
+    for row in register.load():
+        flag = row.get("obstructions_surveyed", "").strip()
+        if row["building_id"] in layer and flag:
+            assert flag == layer[row["building_id"]], (
+                f"{row['building_id']}: register says {flag!r}, "
+                f"roofs.gpkg says {layer[row['building_id']]!r}"
+            )
+
+
+def test_an_accepted_overlap_exception_carries_its_reason():
+    """A flag that silences a check must say why it was set.
+
+    fid 19 sits almost entirely off the roof it names. That was inspected and
+    allowed, so the check should not raise it forever - but an unexplained
+    'yes' in a column is how a real defect gets waved through later.
+    """
+    import sqlite3
+
+    from btp_solar import config
+
+    gpkg = config.DATA / "obstructions.gpkg"
+    if not gpkg.exists():
+        pytest.skip("obstructions.gpkg not present")
+
+    with sqlite3.connect(gpkg) as conn:
+        columns = [r[1] for r in conn.execute("PRAGMA table_info(obstructions)")]
+        assert "overlap_reviewed" in columns
+        rows = list(conn.execute(
+            "SELECT fid, overlap_reviewed, notes FROM obstructions"))
+
+    for fid, flag, notes in rows:
+        assert (flag or "no") in ("yes", "no"), f"fid {fid} has {flag!r}"
+        if (flag or "no") == "yes":
+            assert notes and notes.strip(), (
+                f"fid {fid} is marked reviewed but records no reason"
+            )
+
+
+def test_the_roof_checks_pass_on_the_committed_layers():
+    """check_roofs.py is the gate run after every digitising session, so the
+    layers as committed must pass it. A non-zero exit here means either a real
+    defect or an accepted finding that was never recorded in the data."""
+    import subprocess
+    import sys
+
+    from btp_solar import config
+
+    if not (config.DATA / "roofs.gpkg").exists():
+        pytest.skip("roofs.gpkg not present")
+
+    finished = subprocess.run(
+        [sys.executable, "scripts/check_roofs.py"],
+        cwd=config.ROOT, capture_output=True, text=True, timeout=120,
+        check=False,  # the exit code is what is being asserted
+    )
+    assert finished.returncode == 0, (
+        f"check_roofs reported problems:\n{finished.stdout[-1500:]}"
+    )
+    # Assert on the content too, so this cannot pass by the script becoming a
+    # no-op: a gate that exits 0 without checking anything is worse than none.
+    assert "TOTAL" in finished.stdout
+    assert "no problems found" in finished.stdout
+    assert "obstructions surveyed on 10/10" in finished.stdout

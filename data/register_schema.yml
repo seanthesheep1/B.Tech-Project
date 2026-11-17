@@ -36,18 +36,25 @@ usable_area:  # written by scripts/run_fr2_usable_area.py
   installable_capacity_kwp: {unit: kWp, module: FR-2, source: "module area x MODULE_POWER_DENSITY_W_PER_M2 / 1000"}
   usable_fraction_of_roof:  {unit: "-", module: FR-2, source: "module area / gross roof area; the sanity check on the whole chain"}
   obstruction_count:        {unit: count, module: FR-2, source: "number of polygons digitised in obstructions.gpkg for this roof"}
+  obstructions_surveyed:    {unit: "-", module: FR-2, source: "yes | no, from roofs.gpkg. Distinguishes a roof walked and found clear, which carries a real zero, from one not yet surveyed, which carries the 8% placeholder. Without it the two look identical"}
   design_sun_elevation_deg: {unit: deg, module: FR-2, source: "sun elevation at the no-shading design point; the GCR derives from it"}
   design_criterion:         {unit: "-", module: FR-2, source: "config.SHADING_CRITERION: winter_noon or winter_9_to_3"}
 
-shading:  # FR-3, week 6
-  annual_shading_loss:      {unit: "-", module: FR-3, source: "1 - shaded POA / unshaded POA over the year, from UMEP"}
-  worst_month_shading_loss: {unit: "-", module: FR-3, source: "December, the binding month"}
+shading:  # FR-3, written by scripts/run_fr3_shading.py
+  annual_shading_loss:      {unit: "-", module: FR-3, source: "1 - shaded POA / unshaded POA over the NASA series; beam from the horizon ray-trace, diffuse from the sky view factor"}
+  worst_month_shading_loss: {unit: "-", module: FR-3, source: "the worst calendar month on the same basis; December for most roofs, when shadows are longest"}
+  sky_view_factor:          {unit: "-", module: FR-3, source: "mean over the roof's sample points of cos^2(horizon elevation) across azimuth; 1.0 is open sky. Scales the diffuse component"}
+  shading_method:           {unit: "-", module: FR-3, source: "horizon_raytrace; a horizon profile per sample point rather than UMEP, so the figure regenerates from a script (docs/decisions.md 2026-11-16)"}
 
-generation:  # FR-4, week 7
-  annual_energy_kwh:        {unit: kWh, module: FR-4, source: "pvlib model chain output after the loss stack"}
+generation:  # FR-4, written by scripts/run_fr4_generation.py
+  annual_energy_kwh:        {unit: kWh, module: FR-4, source: "pvlib chain output after the loss stack; mean of the complete modelled years"}
+  annual_energy_sd_kwh:     {unit: kWh, module: FR-4, source: "standard deviation across the modelled years; the interannual spread, reported rather than averaged away"}
   specific_yield:           {unit: kWh/kWp/yr, module: FR-4, source: "annual energy / installable capacity; must land in 1300-1600"}
   capacity_factor:          {unit: "-", module: FR-4, source: "specific yield / 8766"}
-  total_loss_fraction:      {unit: "-", module: FR-4, source: "multiplicative combination of config.LOSSES"}
+  total_loss_fraction:      {unit: "-", module: FR-4, source: "multiplicative combination of config.LOSSES, applied once to DC power"}
+  irradiance_source:        {unit: "-", module: FR-4, source: "nasa_power | pvgis_tmy; chosen in Part 3 against measured generation shape"}
+  decomposition_model:      {unit: "-", module: FR-4, source: "dirint | erbs | source_components; how beam and diffuse were separated, since NASA POWER supplies global irradiance only"}
+  shading_applied:          {unit: "-", module: FR-4, source: "yes | no; no means this row is an unshaded upper bound awaiting the Part 6 factors"}
 
 grid:  # FR-5, weeks 9-10
   feeder_id:                {unit: "-", module: FR-5, source: "which 11 kV feeder supplies the building"}

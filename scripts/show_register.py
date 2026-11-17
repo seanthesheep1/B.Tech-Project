@@ -11,7 +11,7 @@ import yaml
 
 sys.path.insert(0, "src")
 
-from btp_solar import config, register  # noqa: E402
+from btp_solar import config, register
 
 
 def main() -> int:

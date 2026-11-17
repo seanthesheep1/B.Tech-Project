@@ -13,13 +13,34 @@ import sys
 
 sys.path.insert(0, "src")
 
-from btp_solar import config, fr2_usable_area, register  # noqa: E402
-from btp_solar.solar_geometry import design_sun_position  # noqa: E402
+from btp_solar import config, fr2_usable_area, register
+from btp_solar.solar_geometry import design_sun_position
 
 GEOMETRY_COLUMNS = ("gross_roof_area_m2", "obstruction_area_m2", "roof_perimeter_m")
 
+# Superseded once the roofs were digitised. This script re-derives the area
+# chain from the register's own rounded columns, while run_fr2_from_gpkg.py
+# derives it from the full-precision geometry in roofs.gpkg. The two disagree
+# in the fourth significant figure - enough to move the campus total between
+# 2220.6 and 2220.4 kWp depending on which ran last, which is exactly the kind
+# of drift the register exists to prevent. Only one script may own a column.
+SUPERSEDED_BY = "scripts/run_fr2_from_gpkg.py"
+
 
 def main() -> int:
+    gpkg = config.DATA / "roofs.gpkg"
+    if gpkg.exists():
+        print(f"""Refusing to run: {gpkg.name} exists.
+
+The roofs have been digitised, so the area chain must be derived from that
+geometry rather than from the register's rounded columns. Use
+
+    uv run python {SUPERSEDED_BY}
+
+which owns these columns. Running both leaves the campus total depending on
+whichever ran last.""")
+        return 1
+
     sun = design_sun_position(config.SITE_LAT, config.SHADING_CRITERION)
     print(
         f"Design sun position ({sun.label}): elevation {sun.elevation_deg:.2f} deg, "

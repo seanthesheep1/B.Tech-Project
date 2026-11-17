@@ -18,13 +18,12 @@ import math
 import sqlite3
 import struct
 import sys
-from pathlib import Path
 
 sys.path.insert(0, "src")
 
-from btp_solar import config, fr2_usable_area, register  # noqa: E402
-from btp_solar.fr2_usable_area import RoofMeasurements  # noqa: E402
-from btp_solar.solar_geometry import design_sun_position  # noqa: E402
+from btp_solar import config, fr2_usable_area, register
+from btp_solar.fr2_usable_area import RoofMeasurements
+from btp_solar.solar_geometry import design_sun_position
 
 ROOFS = config.DATA / "roofs.gpkg"
 OBSTRUCTIONS = config.DATA / "obstructions.gpkg"
@@ -70,6 +69,16 @@ def main() -> int:
           f"packing {config.PACKING_FACTOR}\n")
 
     geometry: dict[str, list] = collections.defaultdict(list)
+    surveyed: dict[str, str] = {}
+    drawn: dict[str, tuple[str, str]] = {}
+    for bid, flag, by, when in sqlite3.connect(ROOFS).execute(
+            "SELECT building_id, obstructions_surveyed, digitised_by, "
+            "digitised_date FROM roofs"):
+        surveyed[bid] = flag or "no"
+        # The schema asks for initials "so a disputed polygon has an owner".
+        # They were recorded in the layer and never reached the register.
+        drawn[bid] = ((by or "").strip(), (when or "").strip())
+
     for bid, blob in sqlite3.connect(ROOFS).execute("SELECT building_id, geom FROM roofs"):
         geometry[bid].append(rings(blob))
 
@@ -112,6 +121,8 @@ def main() -> int:
         if bid in by_id:
             by_id[bid].update({k: register._fmt(v) for k, v in result.as_row().items()})
             by_id[bid]["obstruction_count"] = str(obstruction_count.get(bid, 0))
+            by_id[bid]["obstructions_surveyed"] = surveyed.get(bid, "no")
+            by_id[bid]["digitised_by"], by_id[bid]["digitised_date"] = drawn.get(bid, ("", ""))
             by_id[bid]["roof_perimeter_m"] = register._fmt(edge)
 
     print("-" * len(header))
