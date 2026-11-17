@@ -18,7 +18,7 @@ import sys
 
 sys.path.insert(0, "src")
 
-from btp_solar import campus_meters, config, fr1_data  # noqa: E402
+from btp_solar import campus_meters, config, fr1_data
 
 YEAR = 2024  # the last year with near-complete meter coverage
 MONTHS = [f"{YEAR}-{m:02d}" for m in range(1, 13)]

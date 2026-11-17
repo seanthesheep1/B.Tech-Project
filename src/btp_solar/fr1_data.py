@@ -71,12 +71,106 @@ def fetch_nasa_power(
             "start": start,
             "end": end,
             "format": "JSON",
+            # Pinned explicitly. The hourly API defaults to local solar time,
+            # and the cached file this project works from is LST; leaving it
+            # unstated means a re-download could silently return UTC instead.
+            # fr4_generation.load_nasa_hourly reads the standard from the file
+            # header and handles either, but the download must be reproducible.
+            "time-standard": "LST",
         },
         timeout=300,
     )
     response.raise_for_status()
     out.write_text(json.dumps(response.json(), indent=1), encoding="utf-8")
     return out
+
+
+def fetch_campus_footprints(
+    bbox: tuple[float, float, float, float] = (28.5395, 77.1810, 28.5520, 77.1990),
+    cache_dir: Path = config.DATA,
+) -> Path:
+    """Building outlines **with geometry** for the campus, from Overpass.
+
+    ``footprints_osm.json`` carries centroids only - the Part 1 query asked for
+    ``out center`` - which is enough to choose candidates but useless for
+    shading, where the neighbours' outlines are the whole point. This fetches
+    the polygons once and caches them.
+
+    Tracked in git when fetched, for the reason recorded on 2026-09-22:
+    OpenStreetMap is a living map and a later re-download would not reproduce
+    the same footprints.
+    """
+    import requests
+
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    out = cache_dir / "footprints_campus_geometry.json"
+    if out.exists():
+        return out
+
+    south, west, north, east = bbox
+    query = (
+        f"[out:json][timeout:90];"
+        f"(way[building]({south},{west},{north},{east});"
+        f" relation[building]({south},{west},{north},{east}););"
+        f"out geom tags;"
+    )
+    # Overpass is a free, shared service and answers 429 or 502 under load, so
+    # a single attempt is not a reproducible download. Mirrors are tried in
+    # turn with a backoff, exactly as the campus tile fetcher does.
+    import time
+
+    mirrors = (
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+        "https://overpass.private.coffee/api/interpreter",
+    )
+    last = ""
+    for attempt in range(3):
+        for mirror in mirrors:
+            try:
+                response = requests.post(
+                    mirror,
+                    data={"data": query},
+                    headers={"User-Agent": "academic-rooftop-solar-study/1.0"},
+                    timeout=120,
+                )
+            except requests.RequestException as exc:
+                last = f"{mirror}: {type(exc).__name__}"
+                continue
+            if response.status_code == 200:
+                out.write_text(json.dumps(response.json(), indent=1), encoding="utf-8")
+                return out
+            last = f"{mirror}: HTTP {response.status_code}"
+        time.sleep(2 ** attempt)
+
+    raise RuntimeError(
+        f"no Overpass mirror answered (last: {last}). The campus footprints "
+        f"are a one-off download; retry later, or fetch them by hand into "
+        f"{out}."
+    )
+
+
+def osm_height_m(tags: dict) -> tuple[float, str]:
+    """A building's height and where the figure came from.
+
+    Preference order: an explicit ``height`` tag, then ``building:levels``
+    times the assumed storey height, then a declared default. The source is
+    returned alongside so the report can say how many buildings rested on a
+    guess.
+    """
+    raw = tags.get("height")
+    if raw:
+        try:
+            return float(str(raw).split()[0]), "height_tag"
+        except ValueError:
+            pass
+    levels = tags.get("building:levels")
+    if levels:
+        try:
+            return float(str(levels).split()[0]) * config.DEFAULT_STOREY_HEIGHT_M, "levels"
+        except ValueError:
+            pass
+    return config.DEFAULT_NEIGHBOUR_HEIGHT_M, "assumed"
 
 
 def annual_ghi_from_pvgis(path: Path) -> float:

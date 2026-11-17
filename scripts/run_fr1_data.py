@@ -9,7 +9,7 @@ import sys
 
 sys.path.insert(0, "src")
 
-from btp_solar import acceptance, fr1_data  # noqa: E402
+from btp_solar import acceptance, fr1_data
 
 
 def main() -> int:
