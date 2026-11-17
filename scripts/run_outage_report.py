@@ -19,7 +19,7 @@ import sys
 
 sys.path.insert(0, "src")
 
-from btp_solar import campus_meters, config  # noqa: E402
+from btp_solar import campus_meters, config
 
 TARIFF_RS_PER_KWH = 8.0  # provisional: DERC institutional rate, D38 not yet received
 
