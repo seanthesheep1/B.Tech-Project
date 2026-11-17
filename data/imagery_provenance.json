@@ -1,0 +1,28 @@
+{
+  "layer": "Esri World Imagery",
+  "queried_on": "2026-11-17",
+  "queried_from": "https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/identify",
+  "query_point": {"lon": 77.192, "lat": 28.545, "crs": "EPSG:4326"},
+  "acquisition_date": "2025-10-23",
+  "resolution_m": 0.5,
+  "horizontal_accuracy_m": 8.47,
+  "sensor": "WV02",
+  "sensor_long": "DigitalGlobe/Maxar WorldView-2",
+  "product": "Vivid Advanced",
+  "source": "Vantor",
+  "block_name": "DYNAMIC_ESRI_New_Delhi_25Q4",
+  "release": "Raster Basemaps 2026.R03",
+  "same_scene_when_traced": {
+    "verified": true,
+    "method": "Esri Wayback metadata layers queried at the same point",
+    "releases_checked": [
+      {"wayback": "2026-08-05", "metadata_layer": "World_Imagery_Metadata_2026_r07", "src_date": "2025-10-23", "block": "DYNAMIC_ESRI_New_Delhi_25Q4"},
+      {"wayback": "2026-09-24", "metadata_layer": "World_Imagery_Metadata_2026_r09", "src_date": "2025-10-23", "block": "DYNAMIC_ESRI_New_Delhi_25Q4"}
+    ],
+    "note": "Roofs were traced 2026-09-22 and 2026-09-23. The release live on those dates was Wayback 2026-08-05, which served the same block and the same capture date as today."
+  },
+  "acquisition_time": {
+    "known": false,
+    "note": "Esri's metadata carries the date but not the time. WorldView-2 is sun-synchronous with a descending node near 10:30 local, so capture was probably mid-morning, but that is an expectation and not a record. For the FR-3 shadow check the time is recoverable from the imagery itself: a shadow's bearing gives the solar azimuth, which gives the hour angle for a known date and latitude. Bearing and length are independent measurements, so using the bearing to fix the time leaves the length free to test the elevation model."
+  }
+}

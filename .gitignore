@@ -15,6 +15,9 @@ data/*
 !data/footprints_osm.json
 # PVGIS horizon profile: small, and it pins a regression test.
 !data/horizon_*.json
+# Imagery provenance: queried once from a service that updates, so it is a
+# record rather than a reproducible download.
+!data/imagery_provenance.json
 # Part 4 working layers: small, hand-edited, and the roof outlines are the
 # project's primary measurement - they must be versioned.
 !data/candidate_roofs.geojson

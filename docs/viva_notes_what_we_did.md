@@ -178,6 +178,14 @@ the dead plants. That is worth more than any slide.
 
 ## 5. Still to fill in
 
+- The **Esri imagery acquisition date is 2025-10-23**, WorldView-2, 0.5 m,
+  verified through Esri's Wayback layers to be the same scene that was on
+  screen when the roofs were traced in September 2026. It is recorded in
+  `data/imagery_provenance.json`. Note for the viva: the imagery is eleven
+  months *older* than your foot survey, which is the right way round and is
+  why the survey found six roofs with panels the open data had missed.
+
+
 - **Surbhi's contributions** are not recorded here because they are not in the
   repository's metadata. Add them before the presentation; a viva that cannot
   separate two students' work serves neither of them.

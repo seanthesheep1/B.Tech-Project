@@ -1428,3 +1428,61 @@ way to close this.
 
 Until then the band stands, and it is worth about plus or minus 10% on campus
 capacity - material, but not enough to move the headline.
+
+## 2026-11-17 — The Esri imagery was captured on 23 October 2025
+
+Queried from Esri's own metadata service at the campus point rather than read
+off a screen. Recorded in `data/imagery_provenance.json`, because a fact that
+an acceptance criterion depends on belongs in data.
+
+| | |
+|---|---|
+| Acquisition date | **2025-10-23** |
+| Sensor | WorldView-2 |
+| Resolution | 0.5 m |
+| Horizontal accuracy | 8.47 m |
+| Product | Vivid Advanced, Vantor |
+| Block | DYNAMIC_ESRI_New_Delhi_25Q4 |
+
+**It is the same scene the roofs were traced against.** Esri replaces World
+Imagery as new captures land, so today's date is not automatically the date
+that was on screen in September 2026. Checked through the Wayback metadata
+layers: the release live on 22 and 23 September 2026 was Wayback 2026-08-05,
+and at this point it served the same block and the same capture date. So the
+tracing, the obstructions and the shading model all rest on one scene.
+
+**The 8.47 m is absolute georeferencing, not shape error.** It says the scene
+may sit up to that far from its true position on the earth. It does not mean a
+roof's outline is wrong by 8 m. Area, shape and the relative positions of
+buildings within one block are consistent, and those are what this project
+measures, so the figure does not propagate into roof area or into the shading
+geometry. It would matter for aligning against an independent survey.
+
+**The imagery is eleven months older than the foot survey.** Captured October
+2025, surveyed September 2026. The survey is the newer evidence, which is the
+right way round, and it explains the six buildings found carrying panels that
+the open data had not recorded. Anything installed after October 2025 is
+invisible to the imagery, and the PV census will inherit that limit.
+
+### FR-3 is no longer blocked, and the missing time is recoverable
+
+Esri records the date but not the time, and `expected_shadow_length` needs
+both. The time does not have to be assumed. A shadow's **bearing** gives the
+solar azimuth, which gives the hour angle for a known date and latitude; the
+shadow's **length** then tests the elevation model. Bearing and length are
+independent measurements of the same shadow, so fixing the time from one leaves
+the other free to do the validating. No circularity.
+
+For orientation, on day 296 the declination is -12.28 degrees, and a 1.0 m
+parapet at this latitude casts:
+
+| IST | sun elevation | shadow |
+|---|---|---|
+| 10:00 | 36.8 deg | 1.338 m |
+| 10:30 | 41.1 deg | 1.146 m |
+| 11:00 | 44.7 deg | 1.011 m |
+| 11:30 | 47.3 deg | 0.922 m |
+
+WorldView-2 is sun-synchronous with a descending node near 10:30 local, so the
+capture was probably mid-morning - an expectation, not a record, and the
+bearing method does not depend on it.
