@@ -1486,3 +1486,80 @@ parapet at this latitude casts:
 WorldView-2 is sun-synchronous with a descending node near 10:30 local, so the
 capture was probably mid-morning - an expectation, not a record, and the
 bearing method does not depend on it.
+
+## 2026-11-17 — The shadow method is sound; this imagery cannot carry it
+
+Roof access is not permitted, so the six assumed values in
+`OBSTRUCTION_HEIGHTS_M` were to be measured from the shadows the objects cast
+in the Esri scene. The method is implemented in `src/btp_solar/shadows.py` and
+tested, the tile fetching in `src/btp_solar/basemap.py`. It does not work here,
+and the reason is worth recording because it is a property of the product
+rather than of the idea.
+
+**Esri World Imagery over this campus has no usable shadows.** The scene is
+Maxar "Vivid Advanced", a curated seamless basemap rather than a single raw
+pass, and it is radiometrically balanced for even appearance. On 23 October at
+28.5 N the sun cannot climb past 49.2 degrees, so a 24.5 m building *must* lay
+down 26 m of shadow - a hundred pixels at 0.26 m. There is none. Nothing in the
+scene casts anything measurable, and no amount of better estimation recovers a
+signal that was processed out.
+
+### What the attempt established on the way
+
+Three findings survive, all of them corrections to my own first guesses.
+
+**Sampling at one radius is wrong for a polygon that is not round.** The first
+pass searched for the darkest direction at a single distance from the
+centroid, which on an elongated plant-room block starts clear of the object
+across the short axis and still inside it along the long one. `extent_along`
+now uses the outline's support function in each direction.
+
+**Off the roof is darker than any shadow.** The darkest direction from an
+obstruction near a parapet is simply *off the roof*, into tree canopy. That
+beat the real shadow on six obstructions out of twenty-one. Samples are now
+confined to the roof deck.
+
+**The sun's own geometry is a constraint, and using it is not cheating.** With
+the declination south of the latitude the sun never crosses to the north, so
+every shadow in the scene points northward. Unconstrained, the bearings gave a
+circular concentration of 0.21, which is noise. Constrained, 0.71 - but a
+consensus among features that are not shadows is still not a shadow, and the
+subsequent length measurements returned zero almost everywhere, which is how
+the earlier agreement was exposed as spurious. **That 0.71 is not a result and
+must not be quoted as one.**
+
+A test of genuinely scattered bearings then found a real defect:
+`solve_scene_sun` checked its confidence *after* solving the geometry, and
+scattered bearings average to an azimuth no sun occupies, so "these shadows do
+not agree" surfaced as a crash. Confidence is now checked first.
+
+### What replaces the measurement
+
+A sensitivity analysis, which is the honest answer to a parameter that cannot
+be measured - `make sensitivity`. The heights are scaled across the range a
+surveyor would accept without going up to look, from water tanks of 1.5 m to
+6.0 m, and the campus answer is reported at each:
+
+| scale | water tank | campus shading loss | campus energy |
+|---|---|---|---|
+| x0.50 | 1.5 m | 1.29% | 3,139 MWh |
+| x0.75 | 2.2 m | 2.17% | 3,112 MWh |
+| **x1.00** | **3.0 m** | **3.05%** | **3,085 MWh** |
+| x1.25 | 3.8 m | 3.87% | 3,059 MWh |
+| x1.50 | 4.5 m | 4.68% | 3,035 MWh |
+| x2.00 | 6.0 m | 6.08% | 2,991 MWh |
+
+**The headline is robust and the ranking is not.** Across a fourfold range of
+heights the campus energy moves by 148 MWh on about 3,100 - under 5%, and
+inside the uncertainty the generation model already carries. So the untapped
+potential does not depend on the guess. But the worst-affected roof runs from
+3.5% to 19.0% of its own output, and the order in which roofs should be built
+is sorted on exactly that. The report should state the headline plainly and
+attach this band to the ranked table, not the other way round.
+
+### What `basemap.py` is still good for
+
+The tile service is free, needs no key, and serves the same scene the roofs
+were traced against at 0.26 m per pixel - the resolution the census was
+planned around. That removes the Google Maps Static API key from the census
+entirely. The shadow attempt failed; the fetching it was built on did not.

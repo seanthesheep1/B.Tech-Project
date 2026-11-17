@@ -31,6 +31,12 @@ backtest:             ## FR-4  seasonal shape back-test against the metered flee
 tilt:                 ## what tilt buys, once row spacing is counted against yield
 	$(PY) python scripts/run_tilt_tradeoff.py
 
+heights:              ## try to measure obstruction heights from their shadows
+	uv run python scripts/run_shadow_heights.py
+
+sensitivity:          ## how much FR-3 rests on the unmeasured obstruction heights
+	uv run python scripts/run_obstruction_sensitivity.py
+
 alarm:                ## the solar alarm: which plants have stopped or are sliding
 	$(PY) python scripts/run_alarm.py
 
