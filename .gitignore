@@ -67,3 +67,10 @@ scripts/opendss_out/
 
 # macOS
 .DS_Store
+
+# Trained model weights. 351 MB of binary that git should never swallow, and
+# it is downloadable again from the link in the panel-detector project's
+# Resources.txt. See docs/pv_census_integration.md.
+data/model_final.pth
+*.pth
+*.pt

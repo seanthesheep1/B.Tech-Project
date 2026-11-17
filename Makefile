@@ -16,8 +16,23 @@ register:             ## print the building register with provenance
 fr1:                  ## FR-1  fetch irradiance, run the 5% agreement check
 	$(PY) python scripts/run_fr1_data.py
 
-fr2:                  ## FR-2  usable area from setback + derived GCR
-	$(PY) python scripts/run_fr2_usable_area.py
+fr2:                  ## FR-2  usable area from the digitised geometry
+	$(PY) python scripts/run_fr2_from_gpkg.py
+
+fr4:                  ## FR-4  model generation for every candidate roof
+	$(PY) python scripts/run_fr4_generation.py
+
+fr3:                  ## FR-3  shading from neighbours, parapets and roof clutter
+	$(PY) python scripts/run_fr3_shading.py
+
+backtest:             ## FR-4  seasonal shape back-test against the metered fleet
+	$(PY) python scripts/run_fr4_backtest.py
+
+tilt:                 ## what tilt buys, once row spacing is counted against yield
+	$(PY) python scripts/run_tilt_tradeoff.py
+
+alarm:                ## the solar alarm: which plants have stopped or are sliding
+	$(PY) python scripts/run_alarm.py
 
 clean:
 	rm -rf .pytest_cache .ruff_cache **/__pycache__

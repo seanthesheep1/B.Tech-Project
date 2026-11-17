@@ -62,6 +62,67 @@ PERFORMANCE_RATIO = 0.78
 MIN_MONTHS_FOR_CAPACITY = 3   # below this the median is not meaningful
 OUTAGE_MONTHS = 6             # idle this long counts as stopped, not seasonal
 
+# --- generation model chain (FR-4) --------------------------------------
+# New assumptions introduced by Part 7. Each is recorded in docs/decisions.md
+# with its basis, exactly as the FR-2 design values were.
+IRRADIANCE_SOURCE = "nasa_power"   # chosen in Part 3 against measured generation
+DECOMPOSITION_MODEL = "dirint"     # NASA POWER supplies global irradiance only,
+                                   # so beam and diffuse must be separated before
+                                   # transposition. "erbs" is the sensitivity case.
+TRANSPOSITION_MODEL = "perez"      # specification FR-4
+GROUND_ALBEDO = 0.20               # concrete and gravel roof surround
+MODULE_TEMP_COEFF_PER_C = -0.0035  # -0.35 %/degC, typical mono-PERC module
+INVERTER_EFFICIENCY = 0.96         # flat conversion efficiency; clipping is carried
+                                   # in LOSSES, since inverter sizing is not yet chosen
+WIND_SHEAR_EXPONENT = 0.14         # power law, to bring 10 m wind down to 2 m
+MODULE_WIND_HEIGHT_M = 2.0         # the height the cell-temperature model expects
+
+# --- shading (FR-3) ------------------------------------------------------
+# The far horizon was shown flat by the PVGIS profile (0.0-1.9 deg in every
+# direction, docs/decisions.md 2026-09-22), so all shading here is local:
+# neighbouring buildings, the roof's own parapet, and objects on the roof.
+PARAPET_HEIGHT_M = 1.0        # above the roof surface. ASSUMED; measure on site
+ARRAY_MID_HEIGHT_M = 0.5      # module mid-point above the roof, 15 deg racking
+HORIZON_BINS = 360            # one degree of azimuth per bin
+SHADING_SAMPLE_SPACING_M = 5.0  # grid over the usable area of each roof
+CASTER_RADIUS_M = 300.0       # a 30 m block at 6 deg sun casts 285 m; beyond
+                              # this the beam is too weak to matter
+DEFAULT_STOREY_HEIGHT_M = 3.5
+DEFAULT_NEIGHBOUR_HEIGHT_M = 10.5   # 3 storeys, where OSM gives no height at all
+
+# Heights of the objects digitised on the roofs in Part 4. Every one is an
+# assumption by type, not a measurement, and each is worth a site check.
+OBSTRUCTION_HEIGHTS_M = {
+    "water_tank": 3.0,     # typically on a stand
+    "stair_room": 3.0,
+    "lift_room": 4.0,
+    "solar_panel": 1.5,    # existing arrays shade too
+    "other": 2.5,          # unidentified; the mid of the range above
+    "open_air": 0.0,       # a hole in the roof, not an object: casts nothing
+}
+
+# --- the solar alarm ------------------------------------------------------
+# A plant is called underperforming when its share of the fleet's output falls
+# well below its own usual share and stays there. Share is used rather than
+# kWh so that weather cancels: a dull month pulls every plant down together.
+UNDERPERFORMANCE_RATIO = 0.60    # below 60% of its baseline share
+UNDERPERFORMANCE_MONTHS = 2      # for this many months running, so one odd
+                                 # reading is not an alarm
+MIN_MONTHS_FOR_BASELINE = 6      # below this a plant has no baseline yet
+BASELINE_MONTHS = 12             # the baseline is how a plant behaved when the
+                                 # record opened, NOT its median over all time.
+                                 # Director's Lodge died in month seven of
+                                 # twenty-eight, so its all-time median IS the
+                                 # dead level and it would measure itself
+                                 # against its own corpse.
+COLLAPSE_RATIO = 0.05            # below this of baseline is not underperforming,
+                                 # it has effectively stopped - even though the
+                                 # meter still creeps a few kWh a month and so
+                                 # never looks idle
+TARIFF_INR_PER_KWH = 8.0         # PROVISIONAL. DERC institutional rate; D38
+                                 # has not arrived, so every rupee figure in
+                                 # this project is indicative and says so.
+
 # --- loss stack (FR-4) ---------------------------------------------------
 # Itemised rather than a single lumped figure, as the specification requires.
 LOSSES = {
@@ -80,4 +141,15 @@ SEGMENTATION_MIN_IOU = 0.75            # FR-2
 SHADOW_LENGTH_TOL = 0.15               # FR-3
 SPECIFIC_YIELD_RANGE = (1300.0, 1600.0)  # FR-4, kWh/kWp/yr
 PVGIS_AGREEMENT_TOL = 0.10             # FR-4
+# FR-4 back-test. The specification says "back-tested against metered output"
+# without quantifying it, and the naive specific-yield test is circular because
+# plant capacity is itself back-calculated from generation (docs/decisions.md,
+# 2026-09-22). The test used instead compares the *shape* of the modelled and
+# measured years, each normalised to its own annual total, so capacity cancels.
+# The measure is the total absolute deviation between two shapes that each sum
+# to 1; half of it is the fraction of annual energy placed in the wrong month.
+# The threshold below therefore allows a tenth of annual energy to be
+# misallocated across the year. It is OUR criterion, not the specification's,
+# and needs the supervisor's agreement before the final report leans on it.
+SHAPE_AGREEMENT_TOL = 0.20             # FR-4, total absolute monthly deviation
 FEEDER_LOADING_TOL = 0.15              # FR-5, modelled vs billed

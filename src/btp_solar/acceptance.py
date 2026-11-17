@@ -98,6 +98,36 @@ def fr4_pvgis_agreement(
     )
 
 
+def fr4_shape_agreement(
+    modelled: list[float],
+    measured: list[float],
+    tol: float = config.SHAPE_AGREEMENT_TOL,
+) -> CheckResult:
+    """FR-4: the modelled year reproduces the measured year's seasonal shape.
+
+    This replaces the direct specific-yield back-test, which cannot be run
+    honestly: the only capacity figures available for the existing plants are
+    back-calculated from the very generation they would be validating, so
+    kWh / kWp collapses to the assumed constant and passes by construction.
+
+    Both series are normalised to their own annual total before comparison, so
+    capacity never enters. What is tested is whether the model puts the energy
+    in the right months - the December trough, the April peak, the July monsoon
+    dip - which exercises the irradiance, transposition, shading and
+    temperature modelling and nothing else.
+    """
+    from .fr1_data import normalised_shape, shape_error
+
+    gap = shape_error(normalised_shape(modelled), normalised_shape(measured))
+    return CheckResult(
+        "FR-4",
+        "seasonal shape back-test",
+        gap <= tol,
+        f"total absolute deviation {gap:.3f} against a {tol:.2f} tolerance, "
+        f"so {gap / 2:.1%} of annual energy sits in the wrong month",
+    )
+
+
 def fr5_base_case_calibration(
     modelled_kwh: float, billed_kwh: float, tol: float = config.FEEDER_LOADING_TOL
 ) -> CheckResult:

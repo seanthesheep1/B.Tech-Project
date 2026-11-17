@@ -50,7 +50,7 @@ def test_result_renders_readably():
 
 # --- FR-1 shape comparison -------------------------------------------------
 
-from btp_solar import fr1_data  # noqa: E402
+from btp_solar import fr1_data
 
 
 def test_normalised_shape_sums_to_one():
