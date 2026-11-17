@@ -31,6 +31,18 @@ backtest:             ## FR-4  seasonal shape back-test against the metered flee
 tilt:                 ## what tilt buys, once row spacing is counted against yield
 	$(PY) python scripts/run_tilt_tradeoff.py
 
+notebook:             ## regenerate the walkthrough notebook from its source
+	uv run python scripts/make_demo_notebook.py
+
+demo:                 ## regenerate the walkthrough AND run it, outputs and all
+	uv run python scripts/make_demo_notebook.py
+	uv run python -c "import nbformat; from nbclient import NotebookClient; \
+nb = nbformat.read('notebooks/walkthrough.ipynb', as_version=4); \
+NotebookClient(nb, timeout=900, kernel_name='python3', \
+resources={'metadata': {'path': '.'}}).execute(); \
+nbformat.write(nb, 'notebooks/walkthrough.ipynb'); \
+print('walkthrough executed, outputs embedded')"
+
 audit:                ## what each stage consumes and produces, and if it is current
 	uv run python scripts/run_pipeline_audit.py
 

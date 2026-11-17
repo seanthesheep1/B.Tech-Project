@@ -1773,3 +1773,51 @@ Row height follows the deepest column in that row. With a fixed height, the
 `fr4` stage - which takes four inputs - ran its last filename straight through
 the italic note beneath it. No check finds that. One look does, which is the
 same lesson the Solar Map's invisible legend number taught two hours earlier.
+
+## 2026-11-17 — A walkthrough notebook, generated rather than written
+
+`make notebook` builds `notebooks/walkthrough.ipynb` from
+`scripts/make_demo_notebook.py`; `make demo` builds it and runs it. Twenty-eight
+cells, fourteen of them code, executing in about thirty seconds with no network
+- the Esri tiles are cached and every other input is on disk.
+
+**It imports the project's modules and shells out to the project's scripts.**
+Nothing is reimplemented in it, so it cannot quietly drift away from what the
+repository does. A demo notebook that recomputes its own version of the answer
+is worse than no demo, because it will eventually disagree with the code and
+nobody will notice until someone asks.
+
+**The committed copy carries no outputs**, 22 kB rather than 5.6 MB. An
+executed notebook is a different multi-megabyte base64 blob after every run, so
+committing one makes the history unreadable and the diffs meaningless. Running
+it live is also a better demonstration than showing outputs an examiner has to
+take on trust.
+
+### The framing cell exists for a reason
+
+A notebook makes a project look like machine learning, and this one mostly is
+not. The first cell therefore says plainly: one model here is trained - the
+detector, 0.707 test IoU on 68 held-out images - and everything else is physics
+with no training step, no loss function and no fitted parameters.
+
+That is the stronger claim, not the weaker one. Because no constant was tuned
+against the campus meters, the entire 28-month record of 18 plants is a test
+set the model has never seen, and there is no training step for anything to
+leak into. Section 4 of the notebook shows the one parameter that could have
+been fitted - the soiling rate - with the sweep that finds the best-fitting
+value (0.0050) beside the different, stated value the model actually uses
+(0.0030).
+
+Section 11 lists what is not finished: FR-1 failing its criterion, FR-5 never
+built, the unexplained spring residual, six unmeasured obstruction heights, the
+detector weights needing regeneration. An examiner finds those anyway. Finding
+them already written down is a different conversation from finding them
+missing.
+
+### Two defects found by executing it
+
+The `run()` helper returned its `CompletedProcess`, so a repr of it appeared
+under every stage - noise in a document meant to be read. And the figures were
+displayed at full resolution, which embedded 5.6 MB of base64; they are now
+downscaled for display, which is a presentation decision rather than a loss,
+since the full-resolution PNGs are in `reports/figures/`.
