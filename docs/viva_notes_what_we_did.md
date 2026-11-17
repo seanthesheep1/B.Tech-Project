@@ -187,4 +187,8 @@ the dead plants. That is worth more than any slide.
   panels. Say that before anyone asks. The weights were lost to a Colab
   runtime recycle and need one more hour to regenerate; the numbers are real
   and the notebook now saves immediately. See `docs/pv_census_integration.md`.
-- Whether the existing arrays are **flat or tilted**, once someone looks.
+- The existing arrays were photographed on 2026-11-17 and are **tilted and
+  ballasted**, with at least one building on elevated canopy frames. The 15
+  degree assumption survives. Still to measure: the frame's rear-leg height
+  and the row pitch, which together would test whether tight row spacing
+  explains the winter bias. See `docs/decisions.md`.

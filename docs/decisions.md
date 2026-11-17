@@ -1305,3 +1305,37 @@ be repeated.
 The register rule — a fact that changes a number lives in data, not in prose —
 turns out to apply to memory as well as to prose. An hour of GPU should not
 depend on a browser tab staying open.
+
+## 2026-11-17 — The existing arrays are tilted, and ballasted, and possibly packed tight
+
+Photographed on campus by TK. Three things are visible and one is a question.
+
+**The arrays are tilted, not flat.** The model's 15 degree assumption is
+therefore not contradicted by practice, and the flat-mounting comparison in
+`run_tilt_tradeoff.py` changes character: it is no longer "the model may have
+the wrong tilt" but "the campus has chosen tilt, and here is what that choice
+costs in capacity and yield". That is a recommendation with an installed
+counterfactual behind it, which is the stronger of the two readings.
+
+**They are ballasted, not bolted.** Frames sit on concrete blocks with no
+visible roof penetration. That matters for the feasibility argument: no
+waterproofing is broken, which removes the usual objection to loading an
+existing roof.
+
+**At least one building uses elevated canopy frames** that clear the roof
+clutter entirely, standing well above the parapet and the pipework. The project
+models only low-mounted arrays and deducts obstructed area. A canopy recovers
+that area at a higher structural cost. It is a third design option and it is
+currently unmodelled.
+
+**Row spacing looks tighter than the model assumes, and that is worth
+measuring.** The ground coverage ratio in `config.py` is derived from the
+winter design sun, giving 0.707 at 15 degrees. In the photographs the gap
+between rows reads as smaller than that. If the installed spacing is tighter,
+the fleet carries more capacity per square metre than the model allows and the
+back rows self-shade in winter, which is the right shape to explain the
+residual winter bias in the back-test. A photograph cannot settle it. Two
+measurements can: the height of a frame's rear leg against the panel's long
+edge gives the tilt, and the distance from one row's front edge to the next
+gives the pitch. Until those exist this stays a hypothesis and the report
+should call it one.
