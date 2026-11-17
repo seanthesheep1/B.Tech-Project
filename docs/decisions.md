@@ -529,3 +529,779 @@ correctly; only the setback around its edge is missed. Left as is.
 
 **B07 and B09 carry no obstructions**, inspected and confirmed. They show the
 two highest usable fractions, 50.5 and 48.5 per cent, which is consistent.
+
+---
+
+## 2026-11-16 — Part 7 opened: the generation model chain
+
+FR-4 is implemented in `fr4_generation.py` and run by
+`scripts/run_fr4_generation.py`. **The ten candidate roofs model out at
+3,280 MWh/yr from 2,220.7 kWp, a specific yield of 1,477 kWh/kWp/yr.**
+
+The FR-4 plausibility band (1300–1600) **passes**. The PVGIS cross-check
+**fails at 16.4 per cent** against a 10 per cent tolerance, for the reason set
+out below.
+
+### NASA POWER hourly data is in local solar time, not UTC
+
+The downloaded file's header says `"time_standard": "LST"`. The hourly API
+defaults to local solar time at the requested longitude, where hour 12 is
+solar noon, and returns UTC only when asked; our fetch did not ask.
+
+**Read as UTC, solar noon lands at about 17:00 IST.** Annual and monthly
+irradiation totals are unchanged, so nothing looks wrong — the first run of the
+chain produced a plane-of-array total *below* the horizontal total, which is
+physically impossible at a 15° south tilt, and a cell temperature of 102 °C
+from peak irradiance arriving at the hottest hour of the afternoon.
+
+Handled by reading the standard from the file header and converting with the
+longitude offset, 77.192/15 = 5 h 09 m. That places solar noon at 12:21 IST,
+which is what the longitude requires. `time-standard` is now pinned in
+`fr1_data.fetch_nasa_power` so a re-download reproduces the cached file, and
+`test_local_solar_time_puts_the_sun_overhead_at_midday` fails if the peak hour
+ever moves off midday again.
+
+**Part 3 is unaffected.** The FR-1 source decision compared annual and monthly
+totals, which a whole-hours shift does not change. Nothing hourly existed
+before this step.
+
+### New assumptions, all in config.py
+
+| Value | Setting | Basis | Status |
+|-------|---------|-------|--------|
+| Decomposition | DIRINT | NASA POWER gives global irradiance only; Perez needs beam and diffuse separately | Erbs run as the sensitivity case |
+| Transposition | Perez | Specification FR-4 | — |
+| Ground albedo | 0.20 | Concrete and gravel roof surround | Assumed, not measured |
+| Module temp. coefficient | −0.35 %/°C | Typical mono-PERC | **Confirm against a datasheet before the final report** |
+| Inverter efficiency | 0.96 | Flat conversion efficiency | Clipping stays in `LOSSES`, since inverter sizing is not chosen yet — so it is not double counted |
+| Wind shear exponent | 0.14 | Power law, 10 m to 2 m | NASA reports at 2 m, PVGIS at 10 m; without this the PVGIS case runs spuriously cooler |
+
+The loss stack is unchanged at 11.0 per cent combined, so the figure in the
+mid-term report still holds.
+
+### The decomposition barely matters at 15°, and that is worth knowing
+
+DIRINT and Erbs put the annual diffuse fraction 2.6 points apart — 0.506
+against 0.480, a 45 kWh/m² difference in diffuse irradiation — yet the
+plane-of-array total differs by 0.3 kWh/m² and the specific yield by less than
+0.1 per cent. A plane tilted only 15° sees nearly the whole sky, so the split
+hardly affects what it collects. The uncertainty we expected to have to declare
+turns out not to bind here. **It would bind at a latitude-optimum 28° tilt**,
+which is the other reason the low tilt is a defensible choice.
+
+### Ten years, not a typical year
+
+The NASA series is 87,648 hourly rows covering 2014–2023, so every year is
+modelled and the result is reported as a mean with its spread:
+**1,477 kWh/kWp/yr with a standard deviation of 37, about 2.5 per cent
+year-to-year.** That is a real variability band rather than a single typical
+year, and it is more than the specification asked for.
+
+A partial calendar year is dropped rather than reported: shifting from local
+solar time to UTC moves a few night hours of 1 January 2014 across the
+boundary, and those hours would otherwise appear as a spurious eleventh year
+with almost no energy.
+
+### PVGIS reads 17.9 per cent high on the array plane
+
+Part 3 found PVGIS 10.1 per cent high on annual GHI, concentrated almost
+entirely in winter, and chose NASA POWER because it reproduced the measured
+seasonal shape of the campus fleet. **Tilt amplifies that gap to 17.9 per cent**,
+because tilt gain is largest when the sun is lowest — exactly the season where
+PVGIS is in excess.
+
+So FR-4's cross-check cannot pass while the two sources disagree, and it fails
+for the same root cause as FR-1 rather than for a new one. The resolution is
+the one already recorded: the choice of source is justified against measured
+generation. **To raise with Prof. Bansal:** FR-4's second criterion, like
+FR-1's, presumes the sources agree. Had PVGIS been used unexamined, the campus
+yield figure would have been 3,869 MWh/yr instead of 3,280 — overstated by
+nearly 600 MWh a year.
+
+### What this pass is not
+
+**Shading is unity.** Every roof therefore shares one specific yield, because
+tilt, azimuth and site are common to all ten; only capacity differs. Part 6
+supplies the hourly factors and this script is re-run, and the register's
+`shading_applied` column says which pass produced its numbers so the two cannot
+be confused. The figures above are an **unshaded upper bound**.
+
+The back-test against metered generation is the next step and is not run here.
+
+### Unrelated, and found on the way: the test suite was running on the wrong Python
+
+`uv run pytest` resolved to Anaconda's pytest at `/opt/anaconda3/bin/python`,
+not the project environment, because the dev extra had never been installed
+into `.venv`. The existing 70 tests passed anyway — they need only pyyaml and
+the standard library — so this was invisible until a test imported pvlib.
+Fixed by `uv sync --extra dev`, as `make setup` always intended. Anything that
+reports a dependency as missing should be checked against `sys.prefix` first.
+
+---
+
+## 2026-11-16 — The earlier panel-detection work is brought in as validation
+
+The `rooftop-solar-pv` project from earlier in the year is reused, for one
+purpose: **measuring the capacity of the existing campus plants from imagery,
+with no meter data involved.**
+
+Every capacity figure for the existing fleet is currently back-calculated from
+generation, which makes it useless for validating the generation model — the
+FR-4 back-test would pass by construction. A second, independent route breaks
+that circularity. Two by-products come free: a census showing whether any array
+is unmetered, and a real IoU number for FR-2b.
+
+**The BTP's scope does not change.** The detector finds installed panels, not
+usable roof. The hand-traced polygons from Part 4 remain this project's
+measurement of usable area, and the untapped-roof figures stand as they are.
+
+### What that project actually contains
+
+| | |
+|---|---|
+| 976 annotated tiles, 4,865 arrays | **Real**, train 771 / valid 102 / test 103, COCO polygons |
+| `model_final.pth`, `Dataset.zip` | **134-byte git-LFS pointers, not files.** The weights must come from the Drive link in `Resources.txt`; there is no `.git` directory, so `git lfs pull` will not work |
+| `city_tile_fetcher.py` | Sound: async, resumable, correct grid maths |
+| `generate_city_heatmap()` | **Unusable.** See below |
+
+### The annotations outline array blocks, not panels
+
+88.9 per cent of the 4,865 annotations are four-point quadrilaterals drawn
+around a whole field of modules, gaps between rows included. Confirmed by
+rendering them over their tiles. So a detection's area is **land** area, and
+converting it to kilowatts needs the ground coverage ratio:
+
+    kWp = block area x GCR x 215 / 1000
+
+which is a pleasing cross-link: the GCR derived from the winter sun in Part 4
+is reused here on real arrays, and agreement with the meter-derived capacity
+would partly corroborate that derivation too. **Use a GCR measured on the real
+arrays**, not our design value of 0.707 — that is what we would build, not what
+somebody else did, and assuming it would smuggle an assumption into a check
+whose point is independence.
+
+### Correction to an earlier reading of the model's limits
+
+The test report shows `APl = 0.000` and this was first read as the model being
+weak on campus-scale arrays. That was wrong. Worked through: a 34 kWp plant is
+158 m² of module, 224 m² of block, 3,253 px² at this resolution — the COCO
+**medium** band, where the model scores its best (APm 51.5). Every campus plant
+from 9 to 38 kWp falls in small or medium. `APl` is computed on a single test
+instance and says nothing useful.
+
+### The 872 m bug, and why the fix is structural
+
+The old code recovered a tile's position by recomputing the grid in a second
+script. The two disagreed: the fetcher stepped longitude by
+`tile/(111320·cos φ)` and numbered only tiles it kept; the heatmap function
+used the latitude step for both axes and numbered every grid point. Same id,
+different place — reproduced against the IIT Delhi settings at a **median
+872 m, and not one tile of 268 within a tile's width of where it belonged.**
+Any heatmap that function produced is geographically wrong.
+
+The fix is not a corrected formula. **A tile's position is recorded when the
+tile is created and read back thereafter**, in
+`data/campus_tiles_manifest.csv`. `src/btp_solar/imagery.py` holds the geometry
+and `tests/test_imagery.py` pins it, including that the two degree steps differ
+by 1/cos φ and that a detection is placed from the manifest rather than from
+any grid.
+
+### The campus grid
+
+Bounded by the ten digitised roofs plus the validation buildings rather than a
+1.5 km circle: **80 tiles over 2.25 km²** against the old script's 293, at
+0.2623 m/pixel and 167.9 m a side. Every roof vertex is inside the grid, and
+the script fails rather than writing a manifest if that stops being true.
+
+**Seven of the ten roofs straddle more than one tile, up to four**, so
+detections must be dissolved across tile edges before any area is meaningful.
+
+### Imagery source
+
+Google Static Maps for the detector only, because the model was trained on it
+and running it on Esri would be a domain shift. **Esri stays the source for the
+Part 4 tracing and for FR-3**, which needs a recorded acquisition date that
+Google does not publish. The report must say which source was used for what.
+
+### Still blocking the census
+
+V02, V03 and V04 — Blocks 1, 5 and 6 — carry a name in the register and no
+coordinates. V01 Bharti, V05 Karakoram and V06 Shivalik were found in
+`footprints_osm.json` and are in the grid.
+
+---
+
+## 2026-11-16 — FR-4 back-test: the model passes, and raises a question about tilt
+
+`scripts/run_fr4_backtest.py`. Modelled and measured generation are each
+normalised to their own annual total and compared month by month, so plant
+capacity cancels and the circularity recorded on 2026-09-22 cannot operate.
+Measured side: **18 plants live for the whole of 2024, 792 MWh** — the same set
+that arbitrated FR-1 in Part 3.
+
+**Result: total absolute deviation 0.101, so 5.0 per cent of annual energy sits
+in the wrong month. PASSES** against the 0.20 tolerance.
+
+### The tolerance is ours, not the specification's
+
+The specification says "back-tested against metered output" without
+quantifying it. `config.SHAPE_AGREEMENT_TOL = 0.20` allows a tenth of annual
+energy to be misallocated across the year (the measure counts the excess and
+the matching shortfall, so half of it is the energy misplaced). **This needs
+Prof. Bansal's agreement before the final report leans on it**, and it is
+recorded here as a choice rather than presented as a standard.
+
+### The model matches the measured year worse than raw horizontal irradiance
+
+    NASA POWER GHI                    0.072
+    our model, tilted, after losses   0.101
+    PVGIS TMY GHI                     0.109
+
+Tilting the plane and applying the loss stack should have improved the match.
+It did not, so something seasonal is modelled wrongly.
+
+**But no single month leaves the noise.** The 18 plants disagree with each
+other by ±0.028 on a monthly share, against a largest model deviation of 0.015.
+Month by month the model is inside the spread of the real fleet. What makes the
+gap worth pursuing is that it runs in blocks — high in Nov, Dec, Jan, low from
+March to June — rather than scattering, which is the signature of a seasonal
+effect rather than noise.
+
+### The finding: the existing plants show no winter tilt gain
+
+Share of the year falling in Nov–Feb:
+
+| | winter share |
+|---|---|
+| horizontal irradiance, NASA GHI | 0.236 |
+| **the measured plants** | **0.238** |
+| our model at 15° tilt | 0.268 |
+
+A south-facing tilt lifts the winter share, because tilt gain is largest when
+the sun is lowest; our model duly lifts it to 0.268. **The measured fleet sits
+at the horizontal figure.** The tilt gain is absent from 792 MWh of real
+generation.
+
+Two readings:
+
+**(a) The existing arrays are mounted flat or nearly flat.** Common on Indian
+institutional roofs where wind load and ballast cost dominate. If so, the 15°
+design tilt is not corroborated by any campus installation — and the entry of
+2026-09-21 has carried "confirm against a real campus installation" against
+that value ever since. This is that confirmation, and it points the other way.
+
+**(b) They are tilted and winter losses cancel the gain.** Fog, soiling and
+inter-row shading all bite hardest in winter. Possible, but the cancellation
+would have to be near-exact.
+
+**Settle it by looking.** Panel foreshortening and shadow length in the
+satellite imagery give the real tilt directly, and the census of Step 2b is
+going to that imagery anyway. Measure the tilt while there.
+
+**If (a) holds, the headline changes.** Flat modules need no inter-row spacing,
+so the ground coverage ratio rises from 0.707 toward 1.0 — more kilowatts on
+the same roof at a lower yield per kilowatt. That trade-off deserves a number
+rather than an inherited assumption, and it would move the 2,220.6 kWp figure.
+
+### The winter bias, and why it does not threaten the annual total
+
+Three candidates, in the order worth testing:
+
+1. **Shading is still unity.** Shadows are longest in December, so the months
+   the model overstates are exactly the months Part 6 will cut. Most likely,
+   and it is already the next step.
+2. **Soiling is a flat 3 per cent all year.** Delhi's winter brings fog, dust
+   and no rain to wash the modules.
+3. **The beam fraction may be overstated in winter haze.** DIRINT and Erbs
+   agreed to within 0.1 per cent on the annual total, but that test does not
+   bind seasonally.
+
+All three move energy between months rather than changing the total, so the
+annual figure of 3,281 MWh is not in question. **Re-run this back-test after
+Part 6**; if the winter gap does not close, seasonal soiling is next.
+
+### Still outstanding
+
+Step 2b, the independent capacity from imagery, needs the detector weights and
+is not run. Until it is, the existing fleet's capacity remains a single
+estimate from a single method.
+
+The comparison is also not like-for-like on year: measured is 2024, modelled is
+the 2014–2023 mean, because the NASA series ends in 2023. Interannual spread is
+2.5 per cent, so this is small, but fetching 2024 would remove the caveat
+entirely.
+
+---
+
+## 2026-11-16 — Part 6 / FR-3: the shade comes from the roof, not the neighbours
+
+`scripts/run_fr3_shading.py`. **Campus mean annual shading loss 3.6 per cent**,
+ranging from 0.5 per cent on B09 to 9.6 per cent on B04, worst in December for
+most roofs.
+
+### UMEP is not used, and why
+
+The workflow named the UMEP plugin. It runs inside the QGIS GUI, its output
+cannot be regenerated from a script, and it cannot be unit-tested — all three
+against this project's standing rule that every number regenerates from raw
+data through a named script. The model here is written in Python instead and
+is covered by 22 tests, several checking it against derivations done by hand.
+
+The method is a **horizon profile** per sample point: the highest obstruction
+in each degree of azimuth, built once from the geometry. A point is then sunlit
+whenever the sun stands above its horizon in the sun's own direction, which
+turns a year of ray tracing into a year of array lookups. Diffuse light is
+scaled by the sky view factor, cos² of the horizon elevation averaged over
+azimuth. The approximation is that buildings are flat-topped prisms on flat
+ground, which the PVGIS horizon profile supports.
+
+### The finding: neighbouring buildings shade these roofs by 0.03 per cent
+
+Attribution, campus mean annual loss, each caster run on its own:
+
+| source | loss |
+|---|---|
+| neighbouring buildings | **0.03%** |
+| the roof's own parapet | 0.54% |
+| objects on the roof | **3.09%** |
+| all three | 3.62% |
+
+Shading on these roofs is almost entirely **the clutter standing on them** —
+the water tanks, stair rooms and plant digitised in Part 4 — not the
+surrounding campus. The reason is height: the ten candidates stand 7 to 24.5 m
+and the campus around them is mostly lower, and a neighbour shorter than a roof
+cannot shade it at all.
+
+This inverts the premise the part was planned on. It also means the two roofs
+with the most clutter, B03 and B04, carry nearly ten times the shading loss of
+the clearest, and that the obstruction survey from Part 4 is doing more work
+for FR-3 than the footprint data is.
+
+### The assumption that worried us does not bind
+
+**432 of 454 neighbours carry no height in OpenStreetMap** — only 1 has a
+height tag and 21 have storey counts — so their height is assumed. Sweeping
+that assumption:
+
+| assumed neighbour height | campus mean annual loss |
+|---|---|
+| 7.0 m | 3.62% |
+| 10.5 m (used) | 3.62% |
+| 14.0 m | 3.63% |
+| 17.5 m | 4.04% |
+| 21.0 m | 4.58% |
+
+Even putting every unknown neighbour at six storeys moves the answer by one
+percentage point. **The result is robust to the weakest input in it**, which is
+worth more than a tighter number resting on a guess.
+
+### Two bugs found and fixed, both of which understated the shadow
+
+**Holes in the horizon.** An outline is reduced to points, and if consecutive
+points land more than one azimuth bin apart the horizon acquires gaps — bins
+reading open sky in the middle of a solid wall, through which the sun shines.
+Nothing in the output looks wrong; the shading loss simply comes out too small.
+The sample spacing now scales with distance, since the azimuth step between
+two points `s` apart at range `r` is `s/r`. Pinned by
+`test_a_wall_leaves_no_holes_in_the_horizon`.
+
+**Distance measured to corners, not edges.** The sampling density was chosen
+from the distance between a caster's *vertices* and the roof, so a long wall
+running close past the roof was judged far away by its distant corners and
+sampled too coarsely — putting the holes back exactly where the wall was
+closest. Now measured to the edges.
+
+Together these two raised the campus mean from 0.2 per cent to 3.6 per cent.
+A model that silently reports almost no shadow is the failure mode to watch
+for here.
+
+### Inter-row shading is deliberately not counted
+
+The array is spaced by the ground coverage ratio derived in Part 4 precisely so
+that rows do not shade each other in the design window. Counting it again here
+would penalise the same geometry twice.
+
+### FR-3 acceptance cannot be evaluated
+
+The criterion compares a modelled shadow against one measured in **dated**
+imagery, and the acquisition date of the Esri scenes used in Part 4 was never
+recorded. Sun position depends on the date, so there is nothing to compare
+against. `acceptance.fr3_shadow_length` is implemented and tested and needs one
+dated image and one measured shadow to run. **Capture the date next time the
+QGIS project is open** — this is now blocking a criterion, not just a nicety.
+
+### Does it explain the winter bias?
+
+Partly, on the face of it. Mean shading runs about 5 per cent in December
+against 2.8 per cent in May, so applying it will pull winter output down
+relative to summer — the direction the back-test asked for. Whether it closes
+the whole +0.029 winter gap is answered by re-running FR-4 with these factors
+and then the back-test, which is the next step and not yet done.
+
+### Still assumed
+
+Parapet 1.0 m and the obstruction heights by type (water tank and stair room
+3.0 m, lift room 4.0 m, existing panels 1.5 m, unidentified 2.5 m). Since
+objects on the roof now account for 85 per cent of the modelled loss, **these
+heights are the most load-bearing assumptions in FR-3** and deserve a tape
+measure on the next site visit. Tree canopy is still not modelled; the overhang
+deliberately excluded from the Part 4 obstruction layer belongs here and has
+not yet been added.
+
+---
+
+## 2026-11-16 — Part 7 pass 2, and the tilt assumption finally tested
+
+FR-4 re-run with the FR-3 shading factors: the beam scaled hour by hour by the
+fraction of each roof that can see the sun, the diffuse by the sky view factor.
+
+**3,281 → 3,179 MWh/yr. Shading costs 102 MWh a year, 3.1 per cent.**
+
+The roofs now differentiate, which they could not in the unshaded pass: specific
+yield runs from **1,333 kWh/kWp on B04 to 1,469 on B09**, against a single 1,477
+for all ten before. Every roof stays inside the FR-4 band. B03 and B04, the
+cluttered hostel roofs, lose nearly 10 per cent each.
+
+### Shading does not explain the winter bias
+
+The back-test barely moved: shape error **0.101 → 0.097**, winter excess
++0.029 → +0.027. Shading accounts for about a fourteenth of the gap, not the
+bulk of it. The first of the three candidates listed on 2026-09-22 is therefore
+largely eliminated, which is worth as much as a confirmation would have been.
+
+### Sweeping the tilt identifies the cause
+
+Modelled seasonal shape against the measured fleet, by array tilt:
+
+| tilt | shape error | Jan/Apr | winter share |
+|---|---|---|---|
+| **measured fleet** | — | **0.429** | **0.238** |
+| 0° | **0.082** | 0.489 | **0.242** |
+| 5° | 0.084 | 0.511 | 0.251 |
+| 10° | 0.092 | 0.532 | 0.260 |
+| 15° (ours) | 0.101 | 0.553 | 0.268 |
+| 28° | 0.127 | 0.609 | 0.288 |
+
+The match improves monotonically as the tilt falls, and at 0° the modelled
+winter share lands on the measured figure. **The residual in the back-test is
+not a fault in the model: it is that the model describes a 15° array and the
+validation fleet appears to be mounted flat.** This is the confirmation the
+2026-09-21 entry asked for against a real campus installation, and it
+contradicts the assumption.
+
+A residual remains even at 0° — 0.082 against raw GHI's 0.072, and a Jan/Apr
+ratio of 0.489 against the measured 0.429 — so some winter over-prediction is
+still unexplained. Seasonal soiling is the standing candidate: `config.LOSSES`
+carries a flat 3 per cent, and Delhi's winter brings fog and dust with no rain
+to wash it off.
+
+### What tilt is worth, with row spacing counted
+
+`scripts/run_tilt_tradeoff.py`. Tilt is not free: tilted rows shade each other
+and must be spaced, so the ground coverage ratio falls as tilt rises. Over the
+10 candidate roofs' 17,198 m² of net available area:
+
+| tilt | GCR | kWp | kWh/kWp | MWh/yr | **kWh per m² of roof** |
+|---|---|---|---|---|---|
+| **0°** | **1.000** | **3,143** | 1,382 | **4,343** | **253** |
+| 5° | 0.871 | 2,739 | 1,422 | 3,894 | 226 |
+| 15° (current) | 0.707 | 2,221 | 1,477 | 3,281 | 191 |
+| 28.5° | 0.586 | 1,841 | 1,501 | 2,763 | 161 |
+
+Specific yield rises with tilt, as expected, and is the wrong measure for a
+campus: the roof area is fixed, not the module count. **Per square metre of
+available roof, flat wins by 32 per cent** — 42 per cent more capacity at 6 per
+cent lower yield per kilowatt.
+
+**This is not yet a recommendation to change the design.** Flat modules soil
+faster and do not self-clean in rain, which the flat 3 per cent soiling figure
+does not capture and Delhi would punish; mounting cost, wind load and drainage
+all differ; and the FR-3 obstruction shading was computed for a 15° layout, so
+a denser flat array would catch somewhat more of it. What it establishes is
+that the 15° figure was never tested, that it costs about a third of the
+achievable energy on a fixed roof, and that whoever installed the existing
+campus arrays appears to have reached the same conclusion.
+
+**Settle it in the imagery.** Panel foreshortening and shadow length give the
+real tilt of an existing array directly, and the Step 2b census is going to
+that imagery anyway.
+
+---
+
+## 2026-11-16 — Only one script may own a register column
+
+Found while verifying that a lint tidy-up had changed no behaviour: running
+`scripts/run_fr2_usable_area.py` after `scripts/run_fr2_from_gpkg.py` moved the
+campus total from **2,220.7 kWp to 2,220.4**, and several roofs by a tenth of a
+kilowatt.
+
+Neither is wrong arithmetically. They disagree about their **input**: the gpkg
+script derives the area chain from the full-precision digitised geometry, while
+the older script re-derives it from the register's own already-rounded columns
+and so rounds twice.
+
+The amount is trivial. The property is not: a headline figure that depends on
+which script ran last is exactly what the register exists to prevent, and it
+would not have been noticed without a byte comparison.
+
+`run_fr2_usable_area.py` now refuses to run once `roofs.gpkg` exists and says
+which script owns those columns. The rule it enforces is general: **one
+column, one writer.** Worth checking for the same pattern when FR-5 starts
+writing, since the feeder work will touch rows the generation step also writes.
+
+---
+
+## 2026-11-16 — "Found clear" and "not looked at" are different facts
+
+`check_roofs.py` applied the 8 per cent obstruction placeholder to any roof
+with no obstruction polygons. B07 and B09 have none because they were walked
+and found clear — recorded in this log on 2026-09-23 as "inspected and
+confirmed" — so the placeholder was deducting obstructions that are not there.
+
+The cost: **B07 read 235.3 kWp instead of 260.0 and B09 56.2 instead of 62.3**,
+and the script's campus total came out 2,189.7 kWp against the register's
+2,220.7. Two files disagreed about the headline figure, and the reason was that
+one of them could not tell an empty survey from an absent one.
+
+The fault was not in the arithmetic. **The distinction existed only in prose in
+this log**, where no script could reach it. `roofs.gpkg` now carries
+`obstructions_surveyed` per roof, the flag is propagated into the register by
+the script that owns those columns, and `check_roofs.py` reports three states
+rather than two:
+
+    measured      obstructions digitised on this roof
+    none found    surveyed and clear - a real zero
+    PLACEHOLDER   not yet surveyed, so the capacity is provisional
+
+The totals now agree. Pinned by three tests, including one that fails if the
+register and the layer ever disagree about which roofs were surveyed.
+
+**The general rule, which has now bitten twice in one day**: a fact that
+changes a number has to live in the data, not in a sentence. The same applies
+to the other standing item — `fid 19 on B06`, which `check_roofs` still reports
+as a failure every run although this log accepted it on 2026-09-23 as drawn
+intentionally. A check that flags an accepted finding forever teaches people to
+ignore it, so that acceptance belongs in the obstruction layer too.
+
+---
+
+## 2026-11-16 — An accepted finding belongs in the data too
+
+`check_roofs.py` reported `fid 19 says B06 but only 6% of it is on that roof`
+as a failure on every run, although this log accepted it on 2026-09-23 as drawn
+intentionally. Same fault as the obstruction placeholder, one layer down: the
+decision existed in prose, so the script could not know it had been taken.
+
+`obstructions.gpkg` now carries `overlap_reviewed` per polygon. fid 19 is
+marked `yes` with the reason in its `notes` field — only 6 per cent on B06,
+drawn as intended, costs that roof about 130 kWp, revisit if B06 reads low.
+
+The check now reports three outcomes rather than two: a low overlap that has
+not been reviewed is still a **FAIL**, one that has been reviewed prints as a
+**note** and stays visible, and everything else is ok. **check_roofs exits 0 on
+the committed layers for the first time.**
+
+A test asserts that any polygon marked reviewed also records a reason, because
+an unexplained `yes` in a column is how a real defect gets waved through six
+months later. Another runs the script itself and asserts both its exit code and
+its output, so a gate that silently became a no-op would fail rather than pass.
+
+### Why this mattered more than the kilowatts
+
+A check that reports a known, accepted finding every time teaches the person
+running it to skim past the output. That is how the next real defect gets
+missed — and this project has already had four that were invisible on screen
+and caught only by a check: a building in Ohio, obstructions assigned to the
+wrong block, holes in a shadow horizon, and a meter series read in the wrong
+time standard. The value of the suite depends on its output being worth
+reading, so "no problems found" has to mean it.
+
+Both GeoPackage edits needed the same workaround: `rtree_*_update4` and
+`update5` fire on **any** column change and call `ST_IsEmpty`, which plain
+sqlite3 does not provide. Each was dropped, the write made, and the trigger
+restored verbatim from `sqlite_master`, with `PRAGMA integrity_check`, the
+feature count and the trigger count checked afterwards. Anything editing these
+layers outside QGIS must do the same.
+
+---
+
+## 2026-11-17 — The solar alarm, and a seventh dead plant nobody had counted
+
+`scripts/run_alarm.py`, `src/btp_solar/alarm.py`. The October pitch promised a
+monitor the campus "could start using tomorrow". It now exists.
+
+As of the end of the record, April 2026: **6 stopped, 1 collapsed, 3
+underperforming, 20 generating.**
+
+### The rule, and why it needs no capacity
+
+Energy divided by capacity cannot be used, because capacity is itself
+back-calculated from the same generation (2026-09-22) — the test would compare
+a plant against itself. Instead each plant's **share of the fleet's output** is
+compared against its own baseline. Weather cancels, because a dull month pulls
+everyone down together, and capacity never appears. A test asserts the verdict
+is unchanged when `estimated_kwp` is unavailable.
+
+### Director's Lodge: dead since July 2024, and invisible to every earlier check
+
+It generated 929–1,970 kWh a month until June 2024. From July 2024 it has
+produced **8 to 10 kWh a month, every month, for nineteen months.**
+
+The outage report never saw it, because `months_idle` counts months of exactly
+zero and this register keeps inching forward. It is not an outage by that
+definition and it is not merely underperforming either: it is at **0.9 per cent
+of its baseline**. A fifth dead plant, hiding behind a creeping meter.
+
+That needed two changes:
+
+**A `collapsed` state**, high severity, for output below 5 per cent of baseline
+sustained past the outage window. Ranking it as "medium" would have buried a
+dead plant below live ones in a list sorted by severity.
+
+**The baseline is the opening twelve months, not the all-time median.** This is
+the subtler fault and it is worth recording plainly. A plant that fails early
+spends most of the record dead, so its median *is* the dead level — measured
+against that, Director's Lodge first came out as a mild "41 per cent of usual"
+case. It was measuring itself against its own corpse. Pinned by
+`test_the_baseline_is_the_opening_window_not_the_all_time_median`.
+
+### Hindsight, computed rather than claimed
+
+Running the alarm at each past month, using only what was known by then:
+
+| would have fired | plant | months before the end of the record |
+|---|---|---|
+| 2024-07 | Block No. 5 (Near V-WS-104-107) | 21 |
+| 2024-08 | Director's Lodge | 20 |
+| 2024-09 | Block No. 6 (Near VI-110) | 19 |
+| 2024-10 | SIT Building | 18 |
+| 2024-11 | Main / Amaltas Guest House | 17 |
+
+Amaltas alone is about 98 MWh and ₹8 lakh at the provisional tariff. A test
+asserts the back-test does not peek at months that had not happened yet,
+because the claim is only worth making if it was decided on what was known at
+the time.
+
+### Restraint before sensitivity
+
+Six of the thirteen tests check that the alarm stays **quiet**: a monsoon month
+that pulls the whole fleet down is weather, one poor month is not a trend, a
+new plant has no baseline yet, and multiplying every reading by 37 changes
+nothing. A monitor that cries wolf gets ignored, and then the next dead plant
+goes unnoticed for two years exactly as before.
+
+### What it does not distinguish
+
+A blank month means "nothing recorded", which is a dead plant *or* an unread
+meter. The 2025 band across the hostels is the known missing meter columns, not
+an outage, and the dashboard caption says so. Telling those two apart needs the
+Estate Office, since they are the same in the workbook and need different
+people to fix.
+
+### Addendum, same day — the dashboard, and a failure that was hidden
+
+Running `make alarm` printed `Figure skipped: 'collapsed' is not in list`. The
+figure sorted plants with a hardcoded list of statuses, and adding `collapsed`
+broke it. Two things made that worse than the one-line fault it was:
+
+**The guard swallowed it.** `_figure` is wrapped in a try/except so a figure
+that will not draw cannot kill a report that has already written its data.
+That is still right, but it means a broken figure degrades quietly.
+
+**It was hidden by a redirect.** After a later edit the script was re-run as
+`>/dev/null 2>&1` to check it exited cleanly. It did — with the figure broken.
+Checking an exit code is not checking the output.
+
+The fix is structural: the shades and the ordering now derive from
+`alarm.SEVERITY`, so a new status cannot break the picture, and a test draws a
+fleet containing every status.
+
+**And the chart was rewritten while fixing it.** It had shaded each row by the
+plant's status *today*, which showed Director's Lodge as dead across the whole
+record when it ran normally for its first six months. Each month is now shaded
+against that plant's own opening baseline, using the same thresholds the alarm
+judges by, so the picture cannot drift from the verdict. The month a plant
+falls over is now visible, which is the entire point of putting it on a page.
+
+---
+
+## 2026-11-17 — FR-5 proceeds without the Estate Office data
+
+Decision by the project team: **the feeder study goes ahead on the
+specification's own mitigation rather than waiting for D16, D17 and D18.**
+
+| | | |
+|---|---|---|
+| D16 | electricity bills, per building | not available |
+| D17 | campus single line diagram | not available |
+| D18 | transformer schedule | not available |
+
+None can be derived, fetched or estimated from anything this project can
+reach. They have been the only true blockers since the plan was written on
+2026-09-21.
+
+### What this costs, precisely
+
+**FR-5's acceptance criterion cannot be evaluated.** The criterion is that the
+modelled base case reproduces billed consumption within 15 per cent, and there
+are no bills to compare against. `acceptance.fr5_base_case_calibration` stays
+implemented and tested; it will not be run, and the report must say so in those
+words rather than leaving a reader to infer it.
+
+Nothing else is affected. The 2,220.7 kWp, the 3,179 MWh, FR-1 through FR-4,
+the alarm and the economics all stand.
+
+### What is built instead
+
+A representative 11 kV feeder in OpenDSS, with every input declared:
+
+- **transformer ratings** assumed, unless rating plates are photographed on
+  site, which would make them real
+- **which buildings sit on the feeder** assumed from proximity on the campus
+  map, since this is not visible from imagery
+- **load profiles** synthesised from building category and floor area, both of
+  which the register already holds for all ten candidates
+- **generation** from `generation_results.csv`, which is modelled and
+  back-tested, so it is the one well-founded input in the study
+
+`fr5_feeder.FeederCase` carries a `synthetic` flag written for exactly this
+case, so the output cannot be mistaken for a calibrated result.
+
+### The method this forces, which is better than it sounds
+
+With nothing to calibrate against, a single set of numbers would be a guess
+presented as a finding. The study is therefore built as a **sensitivity
+analysis**: run the feeder across the plausible range of each assumption and
+report which conclusions survive all of them and which depend on a particular
+guess.
+
+"Reverse power flow occurs on a summer Sunday under every assumption we tried"
+is a defensible claim with no bills at all. "Voltage reaches 1.04 pu" is not.
+The report should carry only the first kind, and say that is why.
+
+### Still worth asking in writing
+
+Proceeding without the data does not make the request pointless. A blocker that
+was escalated in writing and then mitigated per the specification reads as a
+managed risk; the same gap undocumented reads as unfinished work. One email,
+whatever the reply.
+
+## 2026-11-17 — The training notebook no longer trusts the runtime's memory
+
+A detector training run completed on a Colab T4 and produced its scores and its
+prediction figures. The runtime was then recycled before the save cell ran, and
+the cell failed with `NameError: name 'train_set' is not defined`. It was asking
+memory for facts about a run the machine had already forgotten, and `/content`
+went with it.
+
+Two changes, both the same idea. The training cell now writes the run to
+`/content/train_state.json` and pulls `panel_detector.pt` to the laptop the
+moment the last epoch ends, rather than waiting for a later cell. The save cell
+reads that file instead of reading variables, so it survives a restart; if
+`test_iou` is missing it says to re-run the scoring cell, which reloads the
+saved weights and takes under a minute, instead of implying the whole hour must
+be repeated.
+
+The register rule — a fact that changes a number lives in data, not in prose —
+turns out to apply to memory as well as to prose. An hour of GPU should not
+depend on a browser tab staying open.
