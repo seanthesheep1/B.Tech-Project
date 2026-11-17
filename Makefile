@@ -34,14 +34,9 @@ tilt:                 ## what tilt buys, once row spacing is counted against yie
 notebook:             ## regenerate the walkthrough notebook from its source
 	uv run python scripts/make_demo_notebook.py
 
-demo:                 ## regenerate the walkthrough AND run it, outputs and all
+demo:                 ## run the walkthrough into notebooks/walkthrough.run.ipynb
 	uv run python scripts/make_demo_notebook.py
-	uv run python -c "import nbformat; from nbclient import NotebookClient; \
-nb = nbformat.read('notebooks/walkthrough.ipynb', as_version=4); \
-NotebookClient(nb, timeout=900, kernel_name='python3', \
-resources={'metadata': {'path': '.'}}).execute(); \
-nbformat.write(nb, 'notebooks/walkthrough.ipynb'); \
-print('walkthrough executed, outputs embedded')"
+	uv run python scripts/run_walkthrough.py
 
 audit:                ## what each stage consumes and produces, and if it is current
 	uv run python scripts/run_pipeline_audit.py

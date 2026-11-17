@@ -487,11 +487,16 @@ def main() -> int:
                        "name": "python3"},
         "language_info": {"name": "python"},
     }
-    for kind, text in CELLS:
+    for index, (kind, text) in enumerate(CELLS):
         if kind == "markdown":
-            nb.cells.append(nbformat.v4.new_markdown_cell(_lines(text)))
+            cell = nbformat.v4.new_markdown_cell(_lines(text))
         else:
-            nb.cells.append(nbformat.v4.new_code_cell(_lines(text)))
+            cell = nbformat.v4.new_code_cell(_lines(text))
+        # Deterministic ids. nbformat hands every new cell a random one, so
+        # rebuilding an unchanged notebook produced 28 spurious line changes
+        # and buried any real edit. With these, the diff shows content only.
+        cell["id"] = f"cell-{index:02d}"
+        nb.cells.append(cell)
 
     nbformat.validate(nb)
     OUT.parent.mkdir(parents=True, exist_ok=True)

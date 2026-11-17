@@ -1821,3 +1821,26 @@ under every stage - noise in a document meant to be read. And the figures were
 displayed at full resolution, which embedded 5.6 MB of base64; they are now
 downscaled for display, which is a presentation decision rather than a loss,
 since the full-resolution PNGs are in `reports/figures/`.
+
+## 2026-11-17 — Two papercuts in the notebook tooling, both found by running it
+
+The walkthrough was committed output-free precisely so an executed
+multi-megabyte blob would never land in git. Then `make demo` wrote the
+executed notebook straight back over the tracked file, leaving 5.6 MB of
+embedded base64 as an uncommitted change after every run - the exact thing the
+arrangement existed to prevent, and trivial to commit by accident.
+
+`make demo` now runs `scripts/run_walkthrough.py`, which writes to
+`notebooks/walkthrough.run.ipynb`. That path is gitignored, and the script
+reports in as many words that the tracked copy is unchanged.
+
+**And notebook generation was not deterministic.** nbformat hands every new
+cell a random `id`, so rebuilding an unchanged notebook produced 28 spurious
+line changes and would have buried any real edit in the noise. Cells now carry
+deterministic ids (`cell-00` upward) and two consecutive builds are
+byte-identical.
+
+Both defects came from running the thing rather than from reasoning about it,
+which is the same lesson as the Solar Map's invisible legend number and the
+pipeline diagram's overlapping filename. A generated artifact that nobody
+executes is a guess.

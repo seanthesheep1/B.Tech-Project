@@ -62,6 +62,9 @@ venv/
 *.egg-info/
 .pytest_cache/
 .ipynb_checkpoints/
+# An executed notebook is a different multi-megabyte base64 blob every run.
+# `make demo` writes here so the tracked, output-free walkthrough stays clean.
+notebooks/*.run.ipynb
 .ruff_cache/
 
 # OpenDSS run output
