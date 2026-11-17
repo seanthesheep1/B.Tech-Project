@@ -1688,3 +1688,52 @@ now reads it. The campus LCOE moved from Rs 3.62 to Rs 3.64 and the spread
 across roofs widened from 10% to 21% - the heavily shaded B03 and B04 are the
 expensive roofs, which is the shading model showing up in the money for the
 first time.
+
+## 2026-11-17 — The Solar Map: two panels, not one symbol doing two jobs
+
+`make map` draws the ten candidate roofs on the campus from the same Esri
+scene they were traced against, so the outlines sit where they sit for a
+reason. Four choices are worth recording.
+
+**Two panels over the same ground.** The left answers *how much is there*
+(first-year MWh) and the right *what it costs* (LCOE). Folding both into one
+symbol - size for one, hue for the other - makes a picture nobody can read
+back into numbers. Two measures on different scales get two maps.
+
+**Sequential, one hue, light to dark, in both panels.** Darker means more.
+On the left more is better and on the right more is worse, and nothing in the
+colour says which, so the subtitles say it instead. A reader should never have
+to infer the direction of a ramp.
+
+**The ramp starts at step 250, not step 100.** The full light end of a
+sequential scale is for a continuous field, where the palest step means "near
+zero" and may recede into the surface. Ten discrete roofs are not a field:
+each has to stay visible as a mark against a photograph. B09 at 86 MWh had
+been very nearly white.
+
+**Every roof carries its own label**, so identity never depends on colour, and
+the labels are haloed because they sit over a photograph and over fills that
+run from pale to near-black.
+
+### Three defects found by looking at the output
+
+The validator checks colour, not layout. These only surfaced on screen:
+
+- The panel subtitles were hung below the axes, outside `tight_layout`'s rect,
+  and were clipped off the bottom of the figure. They now sit under the panel
+  titles.
+- The ramp legend's **low-end number was invisible**. Both end labels were
+  drawn at the same height, and "663 MWh/yr" spelled out ran the full 150 px
+  of the bar and covered "86" completely. The unit moved into the subtitle and
+  the legend now carries two short numbers.
+- A long thin roof has no room for two stacked lines inside it, so labels on
+  narrow shapes now sit above the outline rather than across it.
+
+### What the map shows at a glance
+
+B06, the Lecture Hall Complex, is the single largest prize at 663 MWh/yr and
+also among the cheapest at Rs 3.49/kWh. B03 and B04 are the pale-on-the-left,
+dark-on-the-right pair: small and expensive, because they carry 9.4% and 9.6%
+shading losses against a campus mean of 3.05%. That is the shading model and
+the economics agreeing with each other in a form someone can see from across a
+room, which is the only thing a map is for.

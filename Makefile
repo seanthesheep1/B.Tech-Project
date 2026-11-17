@@ -31,6 +31,9 @@ backtest:             ## FR-4  seasonal shape back-test against the metered flee
 tilt:                 ## what tilt buys, once row spacing is counted against yield
 	$(PY) python scripts/run_tilt_tradeoff.py
 
+map:                  ## the Solar Map: ten roofs on the campus, two panels
+	uv run python scripts/run_solar_map.py
+
 economics:            ## what the potential costs and what it is worth
 	uv run python scripts/run_economics.py
 
