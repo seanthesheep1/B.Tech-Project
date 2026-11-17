@@ -1339,3 +1339,43 @@ measurements can: the height of a frame's rear leg against the panel's long
 edge gives the tilt, and the distance from one row's front edge to the next
 gives the pitch. Until those exist this stays a hypothesis and the report
 should call it one.
+
+## 2026-11-17 — The grid emission factor, and why the combined margin
+
+CEA's CO2 Baseline Database Version 22.0 (August 2026) gives four figures for
+the Indian grid in FY 2025-26: weighted average 0.675, operating margin 0.963,
+build margin 0.446, combined margin 0.705 tCO2/MWh.
+
+The project uses **0.705**, the combined margin. ACM0002 prescribes it for a
+project that displaces grid electricity, which is what a rooftop array does.
+The weighted average answers a different question - the mean intensity of the
+grid as it stands - and using it here would understate the result by about 4%
+while appearing more conservative. Picking a number because it looks cautious,
+rather than because the method calls for it, is not conservatism.
+
+Campus potential after shading, 3,179 MWh/yr, therefore avoids about
+**2,241 tCO2 a year**.
+
+Both CEA files are in `data/` and stay untracked: they are a reproducible
+download from a public source, which is the rule the rest of `data/` follows.
+
+### The two sources that could not be downloaded
+
+MNRE's benchmark cost was the wrong instrument. The PM-Surya Ghar guidelines
+fix it at Rs 50,000/kW for the first 2 kW and Rs 45,000 for each additional kW,
+and the scheme covers residential consumers and housing societies. There is no
+institutional benchmark above 100 kW in it. Applying a household rate to a
+2,220 kWp campus would inflate capital cost substantially.
+
+DERC publishes no current retail tariff schedule. Its orders page carries
+true-up orders for FY 2021-22 and 2022-23; the base slabs carry forward and the
+real cost moves through a monthly PPAC surcharge. Third-party aggregators
+quote between Rs 6.00 and Rs 8.50 per unit for non-domestic supply and
+contradict each other on PPAC.
+
+Both numbers are therefore requests to the Estate Office rather than downloads:
+one recent campus electricity bill gives the tariff actually paid, and the cost
+of any recent campus installation gives a capital cost from the same buyer, the
+same city and the same year. Those beat any published benchmark, and if neither
+arrives the rupee figures are labelled as estimates rather than quietly sourced
+from a scheme that does not apply.

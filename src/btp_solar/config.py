@@ -122,6 +122,29 @@ COLLAPSE_RATIO = 0.05            # below this of baseline is not underperforming
 TARIFF_INR_PER_KWH = 8.0         # PROVISIONAL. DERC institutional rate; D38
                                  # has not arrived, so every rupee figure in
                                  # this project is indicative and says so.
+                                 # DERC publishes no current retail schedule -
+                                 # the base slabs carry forward and the real
+                                 # cost moves through a monthly PPAC surcharge -
+                                 # so this is settled by a campus bill, not a
+                                 # download.
+
+# --- avoided emissions ---------------------------------------------------
+# Not provisional. CEA, CO2 Baseline Database for the Indian Power Sector,
+# Version 22.0, August 2026, Table S: the Indian grid for FY 2025-26, adjusted
+# for cross-border transfers, including renewables and captive injection.
+#
+#   weighted average 0.675   OM 0.963   BM 0.446   CM 0.705
+#
+# The combined margin is the figure ACM0002 prescribes for a project that
+# displaces grid electricity, which is what a rooftop array does, so it is the
+# one used here. The weighted average is the grid's mean intensity and answers
+# a different question - how dirty the grid is, not what this project avoids.
+# Quoting 0.675 would understate the result while looking more conservative.
+GRID_EMISSION_FACTOR_TCO2_PER_MWH = 0.705
+GRID_EMISSION_FACTOR_SOURCE = (
+    "CEA CO2 Baseline Database v22.0 (Aug 2026), Table S, FY 2025-26, "
+    "combined margin"
+)
 
 # --- loss stack (FR-4) ---------------------------------------------------
 # Itemised rather than a single lumped figure, as the specification requires.
