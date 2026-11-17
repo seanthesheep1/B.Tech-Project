@@ -13,7 +13,7 @@ import sys
 
 sys.path.insert(0, "src")
 
-from btp_solar import campus_meters, config  # noqa: E402
+from btp_solar import campus_meters, config
 
 WORKBOOKS = sorted(config.DATA.glob(config.METER_WORKBOOK_GLOB))
 OUT = config.CAMPUS_METERS_CSV

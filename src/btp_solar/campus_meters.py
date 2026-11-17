@@ -167,7 +167,11 @@ def _parse_date(value) -> dt.date | None:
     if isinstance(value, str):
         for fmt in DATE_FORMATS:
             try:
-                return dt.datetime.strptime(value.strip(), fmt).date()
+                # The naive-datetime warning is suppressed below because a
+                # meter was read on a calendar day, not at an instant: the
+                # result is a date, and attaching a timezone to it would
+                # invent precision the workbooks do not have.
+                return dt.datetime.strptime(value.strip(), fmt).date()  # noqa: DTZ007
             except ValueError:
                 continue
     return None

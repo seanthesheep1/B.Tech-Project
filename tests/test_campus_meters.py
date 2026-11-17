@@ -103,6 +103,7 @@ def test_capacity_needs_enough_live_months():
 def test_capacity_is_recovered_from_energy():
     """A 50 kWp plant's monthly energy must estimate back to about 50 kWp."""
     import calendar
+
     from btp_solar import config
     months = [(f"2024-{m:02d}",
                50.0 * config.PEAK_SUN_HOURS[m] * calendar.monthrange(2024, m)[1]
@@ -114,6 +115,7 @@ def test_capacity_is_recovered_from_energy():
 def test_capacity_ignores_a_single_odd_month():
     """The median must not be dragged by one bad month."""
     import calendar
+
     from btp_solar import config
     months = [(f"2024-{m:02d}",
                50.0 * config.PEAK_SUN_HOURS[m] * calendar.monthrange(2024, m)[1]
