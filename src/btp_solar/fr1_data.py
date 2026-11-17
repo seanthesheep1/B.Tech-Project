@@ -17,6 +17,7 @@ from . import config
 
 PVGIS_TMY_URL = "https://re.jrc.ec.europa.eu/api/v5_2/tmy"
 NASA_POWER_URL = "https://power.larc.nasa.gov/api/temporal/hourly/point"
+NASA_POWER_DAILY_URL = "https://power.larc.nasa.gov/api/temporal/daily/point"
 
 
 def fetch_pvgis_tmy(
@@ -40,6 +41,48 @@ def fetch_pvgis_tmy(
         PVGIS_TMY_URL,
         params={"lat": lat, "lon": lon, "outputformat": "json", "browser": 0},
         timeout=120,
+    )
+    response.raise_for_status()
+    out.write_text(json.dumps(response.json(), indent=1), encoding="utf-8")
+    return out
+
+
+def fetch_nasa_precipitation(
+    lat: float = config.SITE_LAT,
+    lon: float = config.SITE_LON,
+    start: str = "20140101",
+    end: str = "20231231",
+    cache_dir: Path = config.DATA,
+) -> Path:
+    """Daily rainfall for the site, which is what cleans a panel.
+
+    Soiling is the one loss in the stack that the weather *removes* as well as
+    causes, and in Delhi it is removed almost entirely by the monsoon. Daily
+    resolution is enough: what matters is whether a day's rain crossed the
+    threshold that washes a module, not how it fell within the day.
+
+    Same source and same period as the irradiance series, so the soiling model
+    and the generation model are not describing two different decades.
+    """
+    import requests
+
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    out = cache_dir / f"nasa_precip_{lat}_{lon}_{start}_{end}.json"
+    if out.exists():
+        return out
+
+    response = requests.get(
+        NASA_POWER_DAILY_URL,
+        params={
+            "parameters": "PRECTOTCORR",
+            "community": "RE",
+            "latitude": lat,
+            "longitude": lon,
+            "start": start,
+            "end": end,
+            "format": "JSON",
+        },
+        timeout=180,
     )
     response.raise_for_status()
     out.write_text(json.dumps(response.json(), indent=1), encoding="utf-8")

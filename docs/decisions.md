@@ -1563,3 +1563,73 @@ The tile service is free, needs no key, and serves the same scene the roofs
 were traced against at 0.26 m per pixel - the resolution the census was
 planned around. That removes the Google Maps Static API key from the census
 entirely. The shadow attempt failed; the fetching it was built on did not.
+
+## 2026-11-17 — Dust explains the winter leg of the residual, and not the total
+
+The back-test's residual has a definite sign: the model puts more energy into
+November, December and January than the fleet delivers. Shading moved the shape
+error from 0.101 to 0.097 and no further. Row spacing turned out not to be the
+cause. Soiling was the remaining candidate, and NASA POWER's daily rainfall for
+this point says why it would be seasonal here rather than a flat derate:
+
+| | mm/yr | days past a 6 mm wash |
+|---|---|---|
+| Jul | 238 | 11.5 |
+| Aug | 160 | 8.6 |
+| Sep | 118 | 5.8 |
+| **Nov** | **3** | **0.1** |
+| Dec | 8 | 0.4 |
+| Feb | 15 | 0.6 |
+
+November averages one wet day per decade. Dust accumulates from October to the
+pre-monsoon showers with essentially nothing to remove it, over exactly the
+months the model is too optimistic.
+
+### The rate is swept, never fitted
+
+Tuning a soiling rate until the back-test passes, then reporting that the
+back-test passes, would be worthless: the rate absorbs whatever else is wrong.
+So `scripts/run_soiling.py` sweeps the rate across the band published for
+northern India and prints the whole curve. The question is falsifiable - does
+an ordinary amount of dust account for the residual, or an absurd amount?
+
+| %/dry day | annual loss | shape error | winter error |
+|---|---|---|---|
+| none | - | 0.0972 | 0.0327 |
+| 0.10 | 2.1% | 0.0963 | 0.0288 |
+| 0.30 | 5.8% | 0.0931 | 0.0200 |
+| 0.50 | 8.1% | **0.0914** | 0.0139 |
+| 0.80 | 10.1% | 0.0958 | **0.0116** |
+
+### Reading it honestly
+
+**The November-December-January over-prediction is 0.0327, a third of the total
+0.0972.** At 0.30%/day - an unremarkable rate - soiling removes 39% of it; at
+0.50%/day, 57%. So dust does account for most of the thing it was accused of.
+
+**The total shape error barely moves, and that is arithmetic rather than
+failure.** Both series are normalised, so energy taken out of December has to
+reappear somewhere, and it lands in August and September where the model was
+already too high. A real fix to winter therefore shows up as a 0.006
+improvement in the total. The total is simply the wrong instrument for this
+question, which is why the winter sum is now reported beside it.
+
+**What is left is not dust.** After soiling the residual is a spring and
+monsoon error of the opposite sign - the model runs low in March and June, high
+in August. Dust cannot do that. That is the next thing to chase, and the report
+should name it as open rather than imply the residual has been explained away.
+
+### A costed operational finding
+
+Because the dust is now quantified, the value of washing it off can be priced
+rather than asserted. At 0.50%/day, against doing nothing:
+
+| regime | recovers | energy | at Rs 8/kWh |
+|---|---|---|---|
+| wash once, February | 0.52% | 17 MWh/yr | Rs 1.3 lakh/yr |
+| wash twice, December and February | 1.76% | 56 MWh/yr | Rs 4.5 lakh/yr |
+| wash three times over the dry season | 2.45% | 78 MWh/yr | Rs 6.2 lakh/yr |
+
+The tariff is still provisional, so the rupees are indicative and the energy is
+not. This is the first recommendation the project can make about the plants the
+Institute *already owns*, rather than about ones it might build.
