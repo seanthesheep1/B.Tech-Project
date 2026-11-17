@@ -1633,3 +1633,58 @@ rather than asserted. At 0.50%/day, against doing nothing:
 The tariff is still provisional, so the rupees are indicative and the energy is
 not. This is the first recommendation the project can make about the plants the
 Institute *already owns*, rather than about ones it might build.
+
+## 2026-11-17 — Economics: lead on LCOE, sweep the capital cost, rank nothing
+
+The campus potential now has a cost. Three decisions shape how it is reported.
+
+**LCOE first, because the tariff is the weakest input.** Levelised cost divides
+discounted lifetime cost by discounted lifetime energy and contains no tariff
+at all. `TARIFF_INR_PER_KWH` is a placeholder: DERC publishes no current retail
+schedule, only true-up orders, and no campus bill has arrived. An LCOE can be
+compared against whatever the Institute actually pays, later, by someone who
+knows that figure. A payback cannot.
+
+**Capital cost is swept, not asserted.** MNRE's benchmark turned out to be the
+residential PM-Surya Ghar scheme with no institutional rate above 100 kW, so
+applying it to 2.2 MW would have inflated the answer while looking official.
+The sweep spans the published commercial band and the spread is the result:
+
+| Rs/kWp | capex | campus LCOE | discounted payback | NPV |
+|---|---|---|---|---|
+| 32,000 | Rs 7.1 cr | Rs 2.77/kWh | 4.0 yr | Rs 15.6 cr |
+| **42,000** | **Rs 9.3 cr** | **Rs 3.64/kWh** | **5.7 yr** | **Rs 13.0 cr** |
+| 55,000 | Rs 12.2 cr | Rs 4.76/kWh | 8.2 yr | Rs 9.6 cr |
+
+**No build order.** Sorting ten roofs by payback and presenting it as a
+deployment plan would claim more than the arithmetic supports: grid connection,
+occupancy and who pays all belong in that decision and none is in this model.
+The per-roof figures are published; the ordering is left to whoever owns those
+other constraints.
+
+### The result that survives every assumption
+
+Campus LCOE is **Rs 3.64/kWh** against a grid tariff the project has had to
+guess at Rs 8.00. Even at the bottom of the plausible tariff range - Rs 5.00 -
+the campus repays inside 11.8 years against a 25 year life. The conclusion does
+not depend on the number the project could not obtain, which is the strongest
+form the finding can take given what is missing.
+
+### A defect caught while wiring it up
+
+The first run read soiling back from `data/soiling_monthly.csv`, which carries
+the rate the sweep found by *minimising the back-test residual*. Feeding that
+into the economics would have laundered a fitted parameter into a model input -
+the exact failure `run_soiling.py`'s own header warns about. Soiling is now
+computed from the rainfall at `config.SOILING_RATE_PER_DAY = 0.0030`, a stated
+value near the middle of the published band. The sweep is a diagnostic; the
+constant is the input. They are now different numbers in different places, as
+they should always have been.
+
+The same run was also silently applying **zero shading**, because it looked for
+an annual figure in `shading_factors.csv`, which is monthly working detail.
+FR-3 wrote its answer to the register, so the register is where the economics
+now reads it. The campus LCOE moved from Rs 3.62 to Rs 3.64 and the spread
+across roofs widened from 10% to 21% - the heavily shaded B03 and B04 are the
+expensive roofs, which is the shading model showing up in the money for the
+first time.

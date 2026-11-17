@@ -128,6 +128,38 @@ TARIFF_INR_PER_KWH = 8.0         # PROVISIONAL. DERC institutional rate; D38
                                  # so this is settled by a campus bill, not a
                                  # download.
 
+# --- soiling -------------------------------------------------------------
+# The working rate, as a fraction of output lost per dry day. This is a stated
+# assumption near the middle of the band published for northern India.
+#
+# It is deliberately NOT the rate that minimises the back-test's shape error.
+# That rate came out at 0.0050, and `make soiling` sweeps to find it - but a
+# parameter chosen because it makes a validation pass has absorbed whatever
+# else the model had wrong, and feeding it back in as a model input would
+# launder a fit into a fact. The sweep is a diagnostic. This is the input.
+SOILING_RATE_PER_DAY = 0.0030
+
+
+# --- economics -----------------------------------------------------------
+# Every rupee in this project is indicative and says so. MNRE's benchmark is
+# residential only - the PM-Surya Ghar guidelines cap it at 2 kW plus
+# additional kW, with no institutional rate above 100 kW - and DERC publishes
+# no current retail schedule, only true-up orders. So capital cost is swept
+# across the band published for Indian commercial and institutional rooftop
+# rather than asserted at a point, and the project leads on LCOE, which does
+# not contain the tariff at all.
+CAPEX_INR_PER_KWP = 42_000.0     # midpoint of the sweep, for single-figure use
+CAPEX_SWEEP_INR_PER_KWP = (32_000.0, 37_000.0, 42_000.0, 48_000.0, 55_000.0)
+
+OM_FRACTION_OF_CAPEX = 0.015     # annual operations and maintenance
+MODULE_DEGRADATION_PER_YEAR = 0.005   # crystalline silicon, linear
+PROJECT_LIFETIME_YEARS = 25
+DISCOUNT_RATE = 0.08             # a public institution's cost of capital;
+                                 # swept in the script, because a project that
+                                 # only works at one discount rate is not a
+                                 # project, it is an argument about interest
+
+
 # --- avoided emissions ---------------------------------------------------
 # Not provisional. CEA, CO2 Baseline Database for the Indian Power Sector,
 # Version 22.0, August 2026, Table S: the Indian grid for FY 2025-26, adjusted

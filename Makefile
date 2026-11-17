@@ -31,6 +31,9 @@ backtest:             ## FR-4  seasonal shape back-test against the metered flee
 tilt:                 ## what tilt buys, once row spacing is counted against yield
 	$(PY) python scripts/run_tilt_tradeoff.py
 
+economics:            ## what the potential costs and what it is worth
+	uv run python scripts/run_economics.py
+
 soiling:              ## does Delhi dust explain the back-test's winter bias?
 	uv run python scripts/run_soiling.py
 
