@@ -1737,3 +1737,39 @@ dark-on-the-right pair: small and expensive, because they carry 9.4% and 9.6%
 shading losses against a campus mean of 3.05%. That is the shading model and
 the economics agreeing with each other in a form someone can see from across a
 room, which is the only thing a map is for.
+
+## 2026-11-17 — A pipeline audit, because "the file exists" is not provenance
+
+`make audit` declares every stage's inputs and outputs explicitly and checks
+three things: that each input exists, that each output exists, and that **no
+output is older than an input that feeds it**. It prints a table and draws
+`reports/figures/pipeline.png`.
+
+The third check is the one worth having. A project this size accumulates a
+quiet failure mode: a stage runs, writes its output, and then something
+underneath it changes. Nothing errors. The file is still there, still parses,
+still has plausible numbers in it, and is now a record of a calculation nobody
+would get again. Two of today's bugs were exactly that shape - the economics
+read shading from a monthly working file instead of the register, and read
+soiling back from a sweep's own output.
+
+**Staleness is reported at its root, not splashed downstream.** When
+`economics.csv` was backdated by a week, `economics` went stale and `map` did
+not, because the map's own output was still newer than the economics file it
+was drawn from. Re-running economics then made the map stale. Running the audit
+repeatedly walks the chain one stage at a time and converges, which is more
+useful than lighting up eight stages at once and leaving the reader to work out
+which to fix first. This was verified by doing it, not assumed.
+
+Current state: **10 stages current, 0 stale, 0 incomplete.**
+
+### The diagram, and the defect that only looking found
+
+Status is carried by a word and a dot together, never by colour alone - the
+status palette is reserved and a reserved colour must never be the sole
+carrier of meaning.
+
+Row height follows the deepest column in that row. With a fixed height, the
+`fr4` stage - which takes four inputs - ran its last filename straight through
+the italic note beneath it. No check finds that. One look does, which is the
+same lesson the Solar Map's invisible legend number taught two hours earlier.
