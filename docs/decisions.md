@@ -1862,3 +1862,21 @@ works offline is therefore verified rather than assumed, which matters because
 it is the claim the whole arrangement rests on.
 
 Both run artefacts are gitignored. The tracked notebook stays output-free.
+
+## 2026-11-21 — The demo page hides its code by default
+
+Opened in a browser, the exported walkthrough led with forty lines of
+matplotlib `rcParams` setup before any finding. A reader - an examiner - wants
+the result; the code is the evidence behind it and belongs one click away, not
+between them and the first number.
+
+The page now hides code cells by default and carries a *Show code* button.
+Both the style and the script are inline, so it is still one file with no
+network dependency.
+
+The selector is `body.btp-hide-code .jp-CodeCell .jp-Cell-inputWrapper`, scoped
+deliberately: nbconvert wraps a markdown cell's **rendered text** in an
+`inputWrapper` too, so the obvious unscoped rule would have blanked the entire
+document. Verified by parsing the output rather than by reading the CSS - 14
+input wrappers sit inside code cells and hide, 14 sit inside markdown cells and
+stay, none is ambiguous.

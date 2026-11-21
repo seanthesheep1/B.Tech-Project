@@ -32,6 +32,38 @@ OUT = ROOT / "notebooks" / "walkthrough.run.ipynb"
 HTML = ROOT / "notebooks" / "walkthrough.run.html"
 
 
+
+TOGGLE = """
+<style>
+/* Code is hidden by default. A reader opening this wants the findings; the
+   code is the evidence behind them and should be one click away, not the
+   first forty lines of matplotlib setup they have to scroll past.
+   Scoped to .jp-CodeCell: a markdown cell's rendered text lives in an
+   inputWrapper too, and hiding those would blank the whole document. */
+body.btp-hide-code .jp-CodeCell .jp-Cell-inputWrapper { display: none; }
+#btp-toggle {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  font: 600 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 8px 13px; border-radius: 6px; cursor: pointer;
+  background: #1a1a1a; color: #fff; border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,.28);
+}
+#btp-toggle:hover { background: #333; }
+@media print { #btp-toggle { display: none; } }
+</style>
+<button id="btp-toggle">Show code</button>
+<script>
+(function () {
+  var body = document.body, btn = document.getElementById("btp-toggle");
+  body.classList.add("btp-hide-code");
+  btn.addEventListener("click", function () {
+    var hidden = body.classList.toggle("btp-hide-code");
+    btn.textContent = hidden ? "Show code" : "Hide code";
+  });
+})();
+</script>
+"""
+
 def main() -> int:
     import logging
 
@@ -86,6 +118,8 @@ def main() -> int:
                           body)
     for tag in external:
         body = body.replace(tag, "")
+    # Everything inline: no CDN, no second file, still one thing to hand over.
+    body = body.replace("</body>", TOGGLE + "</body>")
     HTML.write_text(body, encoding="utf-8")
 
     print(f"executed {sum(1 for c in notebook.cells if c.cell_type == 'code')} "
@@ -94,7 +128,8 @@ def main() -> int:
           f"({OUT.stat().st_size / 1e6:.1f} MB, untracked)")
     print(f"wrote {HTML.relative_to(ROOT)}  "
           f"({HTML.stat().st_size / 1e6:.1f} MB, {len(external)} CDN scripts "
-          f"removed) <- open this one in a browser")
+          f"removed, code hidden behind a toggle)")
+    print("          ^ open this one in a browser")
     print(f"{SOURCE.relative_to(ROOT)} is unchanged and still output-free")
 
     if failures:

@@ -21,6 +21,9 @@ About 35 seconds. It writes two files:
   in it. No Python, no Jupyter, no server, and **no network at all**: the
   images are embedded and the two CDN scripts nbconvert normally links are
   stripped out, so nothing sits waiting on wifi that is not there.
+  **Code is hidden by default** - the page reads as a report, findings first.
+  A *Show code* button sits in the top right; press it when someone asks to
+  see how a number was produced, and press it again to get out of the way.
 - `notebooks/walkthrough.run.ipynb` - the same thing as a notebook, if you
   would rather run cells live.
 
