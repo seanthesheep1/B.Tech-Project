@@ -14,9 +14,29 @@ input is on disk, so campus wifi cannot embarrass you.
 make demo
 ```
 
-Takes about 35 seconds and writes `notebooks/walkthrough.run.ipynb` with every
-output embedded. Open it and leave it open in a second window. It is the
-fallback if anything live misbehaves, and the thing to hand over afterwards.
+About 35 seconds. It writes two files:
+
+- **`notebooks/walkthrough.run.html`** - one self-contained file. **Double-click
+  it.** It opens in Chrome, Safari or anything else, with every figure already
+  in it. No Python, no Jupyter, no server, and **no network at all**: the
+  images are embedded and the two CDN scripts nbconvert normally links are
+  stripped out, so nothing sits waiting on wifi that is not there.
+- `notebooks/walkthrough.run.ipynb` - the same thing as a notebook, if you
+  would rather run cells live.
+
+**Present from the HTML.** A live kernel is one more thing that can fail in a
+room, and a browser tab cannot lose a connection to a kernel it does not have.
+Open it, press Cmd-F to find a section, and scroll. It also emails and prints.
+
+To run cells live instead:
+
+```
+uv run jupyter lab
+```
+
+That starts a local server and opens Chrome at `localhost:8888`; click
+`notebooks/walkthrough.run.ipynb`, then Run > Run All Cells. Only do this if
+you have practised it.
 
 Also open `reports/figures/solar_map.png` full screen in a third window.
 

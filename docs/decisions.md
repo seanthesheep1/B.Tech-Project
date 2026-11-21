@@ -1844,3 +1844,21 @@ Both defects came from running the thing rather than from reasoning about it,
 which is the same lesson as the Solar Map's invisible legend number and the
 pipeline diagram's overlapping filename. A generated artifact that nobody
 executes is a guess.
+
+## 2026-11-21 — The demo artefact is one HTML file, not a notebook
+
+`make demo` now also writes `notebooks/walkthrough.run.html`: a single
+self-contained file that opens by double-clicking in any browser, with every
+figure embedded. That is what to present from. A live kernel is one more thing
+that can fail in a room, and a browser tab cannot lose a connection to a kernel
+it does not have.
+
+**nbconvert's default output is not actually offline.** It links MathJax and
+require.js from a CDN. This notebook has no LaTeX and no widgets, so both are
+dead weight - and with no network they do not fail silently, they make the
+browser sit waiting. Those two tags are now stripped, and the exporter's output
+is checked to contain no `http` references at all. The claim that the demo
+works offline is therefore verified rather than assumed, which matters because
+it is the claim the whole arrangement rests on.
+
+Both run artefacts are gitignored. The tracked notebook stays output-free.
