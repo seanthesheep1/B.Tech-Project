@@ -154,7 +154,123 @@ Institute's own workbooks the whole time.**
 
 ---
 
-## 4. On how the work was done
+## 4. Where this generalises — two use cases beyond the campus
+
+These are **extensions, not results.** Nothing in this section was built or
+tested here, and saying so first is what makes the rest of it credible. Give
+them about thirty seconds at the end, after the work in sections 1 to 3. A
+panel rewards *"here is a number and here is how we checked it"* and punishes
+*"this could be applied to"*, so these must never arrive before the evidence.
+
+**The fact that licenses both of them.** The detector was trained on **976
+tiles carrying 4,865 annotated arrays**, pulled as Google Static Maps imagery
+over a city, at roughly five arrays per tile. That is dense urban rooftop, not
+an institutional campus. So:
+
+> This is a city-scale detector. We apply it to a campus because that is our
+> scope. Running it back over a city is not a stretch — it is the distribution
+> the model was trained on. The campus is the narrow case.
+
+### A. Measuring rooftop solar adoption across a city
+
+**The gap it fills.** Nobody holds a current, complete list of what is
+installed where. Surveys are slow and out of date on arrival. A detector sweeps
+imagery and returns a map: what fraction of buildings carry panels, which
+wards lag, how residential uptake compares with commercial.
+
+**Why we can claim it — and exactly how far.** This project is building a
+miniature of it: the campus census specified in
+`docs/pv_census_integration.md`, which reads the tile manifest, runs the
+detector, georeferences each detection and writes `data/pv_census.csv` and
+`data/unmetered_candidates.csv`. That is a solar adoption map at 1.3 km
+instead of 13 km, and the pipeline does not change with the area — only the
+tile count does.
+
+**Be precise about its state, because a panel will ask.** What exists is the
+tile manifest (`data/campus_tiles_manifest.csv`), the georeferencing bridge
+(`src/btp_solar/imagery.py`) where the 872 m bug is structurally prevented,
+and a trained detector measured at test IoU 0.707. What does **not** exist yet
+is `pv_census.py`, the run script and their outputs; the weights were lost to a
+Colab runtime recycle and need regenerating first. Say *"designed and
+specified, detector trained, census not yet run"*. Claiming a census that has
+not run is the one thing here that could cost real credibility.
+
+**If asked whether it scales, give the number.** At zoom 19 and this latitude a
+tile is 0.2623 m per pixel and 167.9 m across, so it covers 0.0282 km²:
+
+| Area | Tiles |
+|---|---|
+| The buildings of interest on campus | 80 (`data/campus_tiles_manifest.csv`) |
+| The full campus box | ~293 |
+| A 10 km x 10 km city | ~3,500 |
+| Delhi NCT, 1,484 km² | ~53,000 |
+
+A few thousand tiles is hours of fetching and an afternoon of GPU. The claim is
+arithmetic, not optimism.
+
+**Precedent, if the panel wants to know this is a real field.** DeepSolar
+(Stanford, *Joule*, 2018) built a database of roughly 1.47 million US
+installations this way. The method is established; our contribution is a
+correctly georeferenced implementation of it.
+
+**The one thing not to claim.** Change over time. That needs a dated imagery
+archive and we have a single date. Say *"time-series detection is possible with
+dated imagery, which we did not have"* and stop there.
+
+### B. Screening installations under a subsidy programme
+
+**The gap it fills.** Programmes such as PM Surya Ghar Muft Bijli Yojana
+disburse against claimed residential installations, and physically inspecting
+every claim does not scale. A detector cannot approve or reject a claim, but it
+can sort a list of fifty thousand into *panels visible here* and *nothing
+visible here*, so that inspection effort goes where it is worth spending.
+
+**State the limit in the same breath as the claim.** Satellite detection
+cannot establish that an installation qualifies for a subsidy, that it is
+operational, or who owns it. It is a **screening and prioritisation tool, not a
+replacement for official inspection.** Saying this unprompted is the difference
+between a defensible claim and an overclaim.
+
+**Two weaknesses to volunteer before they are found:**
+
+*The imagery carries no date.* Google Static Maps publishes no acquisition
+date — which is precisely why this project uses Esri for the FR-3 shadow
+validation instead. Subsidy verification is fundamentally a question of *when*,
+so it would need dated commercial imagery. Our own source structurally cannot
+answer it.
+
+*Residential arrays are far smaller than anything we tested on.* Worked through
+at 0.2623 m per pixel, with block area from the 0.707 ground coverage ratio and
+215 W/m²:
+
+| System | Block area | Pixels |
+|---|---|---|
+| 1 kWp residential | ~7 m² | ~96 px² |
+| 3 kWp residential | ~20 m² | ~287 px² |
+| 34 kWp campus plant | ~224 m² | ~3,253 px² |
+
+COCO's *small* band is anything under 1,024 px². Every residential system falls
+inside it, while the campus plants sit comfortably in *medium*. Our measured
+**test IoU of 0.707 on 68 held-out images** was earned on campus-scale arrays
+and does not transfer to 1 to 3 kWp residential rooftops without retraining on
+labels of that size. This is a domain-shift argument and an examiner who knows
+remote sensing will reach for it, so reach for it first.
+
+*(Watch the coincidence: 0.707 is both the test IoU and the ground coverage
+ratio. They are unrelated numbers that happen to collide. Do not let a question
+about one be answered with the other.)*
+
+### A warning about the slides
+
+If these use cases are illustrated with stock rooftop photographs, caption them
+as illustrative or replace them. In a deck otherwise full of our own figures, a
+panel may reasonably assume an uncaptioned aerial photograph is one of our
+detections. Use the hand-labelled against predicted comparison instead — it is
+our own output and it makes the same point better.
+
+---
+
+## 5. On how the work was done
 
 Some of this project was built with AI assistance — the modelling code, parts
 of the analysis, and this document. **Say so plainly if asked.** It is now
@@ -176,7 +292,7 @@ the dead plants. That is worth more than any slide.
 
 ---
 
-## 5. Still to fill in
+## 6. Still to fill in
 
 - The **Esri imagery acquisition date is 2025-10-23**, WorldView-2, 0.5 m,
   verified through Esri's Wayback layers to be the same scene that was on
